@@ -8,6 +8,18 @@ import {
 } from 'sequelize';
 import sequelize from '..';
 
+interface GameSettingAttributes {
+  id?: number;
+  gameId: number;
+  devCorp: string;
+  relatedUrl?: any;
+  storeUrl?: any;
+  setting?: any;
+  deletedAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export class GameSetting extends Model<
   InferAttributes<GameSetting>,
   InferCreationAttributes<GameSetting>

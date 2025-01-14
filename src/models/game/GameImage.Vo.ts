@@ -8,6 +8,15 @@ import {
 } from 'sequelize';
 import sequelize from '..';
 
+interface GameImageAttributes {
+  id?: number;
+  gameId: number;
+  url: string;
+  deletedAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export class GameImage extends Model<
   InferAttributes<GameImage>,
   InferCreationAttributes<GameImage>
