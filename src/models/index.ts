@@ -2,6 +2,13 @@ import path from 'path';
 import { Sequelize, DataTypes } from 'sequelize';
 import { config } from '../config/config';
 
+// 테이블 연결
+import Game from './game/GameDef.Vo';
+import GameImage from './game/GameImage.Vo';
+import Character from './character/CharacterDef.Vo';
+import CharacterImage from './character/CharacterImage.Vo';
+import CharacterDetails from './character/CharacterInfo.Vo';
+
 const basename = path.basename(__filename);
 
 /*
@@ -54,16 +61,26 @@ const Database: any = {};
 Database.Sequelize = Sequelize;
 Database.sequelize = sequelize;
 
-/*
- * DB 모델 처리 구간
- *
- * 테이블에 대한 정보 표기시 해당 표기 원직을 지켜주세요.
- *
- * 만약 테이블이 추가가 되는 상황이 있는 경우 SQL 폴더에 테이블 생성 구문을 업데이트 할것
- *
- ** 정보 처리
- **
- *
- */
+// Initialize models
+Game.initialize(sequelize);
+GameImage.initialize(sequelize);
+Character.initialize(sequelize);
+CharacterDetails.initialize(sequelize);
+CharacterImage.initialize(sequelize);
+// Initialize CharacterImage model
+
+// Associate models
+Game.associate(Database);
+GameImage.associate(Database);
+Character.associate(Database);
+CharacterDetails.associate(Database);
+CharacterImage.associate(Database);
+// Associate CharacterImage model
+
+Database.Game = Game;
+Database.GameImage = GameImage;
+Database.Character = Character;
+Database.CharacterDetails = CharacterDetails;
+Database.CharacterImage = CharacterImage;
 
 export default Database;
