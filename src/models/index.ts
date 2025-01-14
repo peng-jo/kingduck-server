@@ -2,13 +2,6 @@ import path from 'path';
 import { Sequelize, DataTypes } from 'sequelize';
 import { config } from '../config/config';
 
-// 테이블 연결
-import Game from './game/GameDef.Vo';
-import GameImage from './game/GameImage.Vo';
-import Character from './character/CharacterDef.Vo';
-import CharacterImage from './character/CharacterImage.Vo';
-import CharacterDetails from './character/CharacterInfo.Vo';
-
 const basename = path.basename(__filename);
 
 /*
@@ -47,40 +40,4 @@ const sequelize = new Sequelize(
   },
 );
 
-//checking if connection is done
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log(`Database connected to discover`);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
-
-const Database: any = {};
-Database.Sequelize = Sequelize;
-Database.sequelize = sequelize;
-
-// Initialize models
-Game.initialize(sequelize);
-GameImage.initialize(sequelize);
-Character.initialize(sequelize);
-CharacterDetails.initialize(sequelize);
-CharacterImage.initialize(sequelize);
-// Initialize CharacterImage model
-
-// Associate models
-Game.associate(Database);
-GameImage.associate(Database);
-Character.associate(Database);
-CharacterDetails.associate(Database);
-CharacterImage.associate(Database);
-// Associate CharacterImage model
-
-Database.Game = Game;
-Database.GameImage = GameImage;
-Database.Character = Character;
-Database.CharacterDetails = CharacterDetails;
-Database.CharacterImage = CharacterImage;
-
-export default Database;
+export default sequelize;

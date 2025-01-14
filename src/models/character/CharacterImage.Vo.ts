@@ -1,90 +1,74 @@
-import { Model, DataTypes, Sequelize } from 'sequelize';
+import {
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+  DataTypes,
+  Sequelize,
+} from 'sequelize';
+import sequelize from '..';
 
-interface CharacterImageAttributes {
-  id?: number;
-  characterId: number;
-  backgroundColor?: string;
-  layout?: string;
-  url: string;
-  deletedAt?: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
+export class CharacterImage extends Model<
+  InferAttributes<CharacterImage>,
+  InferCreationAttributes<CharacterImage>
+> {
+  id!: CreationOptional<number>;
+  characterId!: number;
+  backgroundColor!: string;
+  layout!: string;
+  url!: string;
+  deletedAt!: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
-class CharacterImage
-  extends Model<CharacterImageAttributes>
-  implements CharacterImageAttributes
-{
-  public id!: number;
-  public characterId!: number;
-  public backgroundColor!: string;
-  public layout!: string;
-  public url!: string;
-  public deletedAt!: Date;
-  public createdAt!: Date;
-  public updatedAt!: Date;
-
-  static initialize(sequelize: Sequelize) {
-    CharacterImage.init(
-      {
-        id: {
-          type: DataTypes.INTEGER,
-          autoIncrement: true,
-          primaryKey: true,
-          unique: true,
-        },
-        characterId: {
-          type: DataTypes.INTEGER,
-          allowNull: false,
-        },
-        backgroundColor: {
-          type: DataTypes.STRING,
-          allowNull: false,
-          defaultValue: '#ffffff',
-        },
-        layout: {
-          type: DataTypes.STRING,
-          allowNull: true,
-        },
-        url: {
-          type: DataTypes.TEXT,
-          allowNull: false,
-        },
-        deletedAt: {
-          type: DataTypes.DATE,
-          allowNull: true,
-        },
-        createdAt: {
-          type: DataTypes.DATE,
-          allowNull: true,
-          defaultValue: Sequelize.fn('now'),
-        },
-        updatedAt: {
-          type: DataTypes.DATE,
-          allowNull: true,
-          defaultValue: Sequelize.fn('now'),
-        },
-      },
-      {
-        sequelize,
-        tableName: 'character_image',
-        timestamps: true,
-        paranoid: true,
-        updatedAt: 'updatedAt',
-        createdAt: 'createdAt',
-        deletedAt: 'deletedAt',
-      },
-    );
-  }
-
-  static associate(db: any) {
-    db.CharacterImage.belongsTo(db.Character, {
-      foreignKey: 'characterId',
-      targetKey: 'id',
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    });
-  }
-}
-
-export default CharacterImage;
+CharacterImage.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+      unique: true,
+    },
+    characterId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      unique: true,
+    },
+    backgroundColor: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: '#ffffff',
+    },
+    layout: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    url: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    deletedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: Sequelize.fn('now'),
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: Sequelize.fn('now'),
+    },
+  },
+  {
+    sequelize,
+    modelName: 'CharacterImage',
+    tableName: 'character_image',
+    freezeTableName: true, // 테이블명 변경 불가
+    timestamps: true, // createdAt, updatedAt 컬럼 생성
+    paranoid: true, // deletedAt 컬럼 생성, soft delete 시 나중에 복구 가능
+  },
+);

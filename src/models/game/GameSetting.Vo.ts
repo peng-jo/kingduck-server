@@ -8,19 +8,22 @@ import {
 } from 'sequelize';
 import sequelize from '..';
 
-export class GameImage extends Model<
-  InferAttributes<GameImage>,
-  InferCreationAttributes<GameImage>
+export class GameSetting extends Model<
+  InferAttributes<GameSetting>,
+  InferCreationAttributes<GameSetting>
 > {
   id!: CreationOptional<number>;
   gameId!: number;
-  url!: string;
+  devCorp!: string;
+  relatedUrl!: any;
+  storeUrl!: any;
+  setting!: any;
   deletedAt!: Date;
   createdAt!: Date;
   updatedAt!: Date;
 }
 
-GameImage.init(
+GameSetting.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -33,9 +36,21 @@ GameImage.init(
       allowNull: false,
       unique: true,
     },
-    url: {
-      type: DataTypes.TEXT,
+    devCorp: {
+      type: DataTypes.STRING,
       allowNull: false,
+    },
+    relatedUrl: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+    },
+    storeUrl: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+    },
+    setting: {
+      type: DataTypes.JSONB,
+      allowNull: true,
     },
     deletedAt: {
       type: DataTypes.DATE,
@@ -54,8 +69,8 @@ GameImage.init(
   },
   {
     sequelize,
-    modelName: 'GameImage',
-    tableName: 'game_image',
+    modelName: 'GameSetting',
+    tableName: 'game_setting',
     freezeTableName: true, // 테이블명 변경 불가
     timestamps: true, // create_at, updated_at 컬럼 생성
     paranoid: true, // deleted_at 컬럼 생성, soft delete 시 나중에 복구 가능
