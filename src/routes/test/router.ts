@@ -13,4 +13,6 @@ router.get('/itemPlanetarySet', TestController.itemPlanetarySet);
 router.get('/itemSet', TestController.itemSet);
 router.get('/itemsearch', TestController.itemSearch);
 
+router.get('/typeSet', TestController.typeSet);
+
 export default router;
