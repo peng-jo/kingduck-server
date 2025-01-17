@@ -16,7 +16,7 @@ var corOptions = {
   origin: 'http://localhost:5173',
 };
 
-app.use(cors(corOptions));
+app.use(cors());
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());

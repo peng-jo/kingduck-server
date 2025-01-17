@@ -1,24 +1,26 @@
-import {
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
-  CreationOptional,
-  DataTypes,
-  Sequelize,
-} from 'sequelize';
+import { Model, DataTypes, Sequelize } from 'sequelize';
 import sequelize from '..';
+import { Character } from './CharacterDef.Vo'; // 올바른 모델 임포트
 
-export class CharacterImage extends Model<
-  InferAttributes<CharacterImage>,
-  InferCreationAttributes<CharacterImage>
-> {
-  id!: CreationOptional<number>;
+interface CharacterImageAttributes {
+  id?: number;
+  characterId: number;
+  backgroundColor: string;
+  layout?: string;
+  url: string;
+  deletedAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export class CharacterImage extends Model<CharacterImageAttributes> {
+  id!: number;
   characterId!: number;
   backgroundColor!: string;
   layout!: string;
   url!: string;
-  deletedAt!: Date;
-  createdAt!: Date;
+  deletedAt?: Date;
+  createdAt?: Date;
   updatedAt!: Date;
 }
 
@@ -67,8 +69,17 @@ CharacterImage.init(
     sequelize,
     modelName: 'CharacterImage',
     tableName: 'character_image',
-    freezeTableName: true, // 테이블명 변경 불가
-    timestamps: true, // createdAt, updatedAt 컬럼 생성
-    paranoid: true, // deletedAt 컬럼 생성, soft delete 시 나중에 복구 가능
+    freezeTableName: true,
+    timestamps: true,
+    paranoid: true,
   },
 );
+
+// Character 모델과의 관계 설정
+
+CharacterImage.belongsTo(Character, {
+  foreignKey: 'characterId',
+  as: 'character',
+});
+
+export default CharacterImage;

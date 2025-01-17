@@ -1,18 +1,10 @@
-import {
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
-  CreationOptional,
-  DataTypes,
-  Sequelize,
-  ForeignKey,
-} from 'sequelize';
+import { Model, DataTypes, Sequelize } from 'sequelize';
 import sequelize from '..';
-import { TypeDef } from './TypeDef.Vo';
+import Skill from './SkillDef.Vo'; // Skill 모델 임포트
 
-interface TypeImageAttributes {
+interface SkillImageAttributes {
   id?: number;
-  pathTypeId: number;
+  skillId: number;
   backgroundColor: string;
   layout?: string;
   url: string;
@@ -21,21 +13,18 @@ interface TypeImageAttributes {
   updatedAt?: Date;
 }
 
-export class TypeImage extends Model<
-  InferAttributes<TypeImage>,
-  InferCreationAttributes<TypeImage>
-> {
-  id!: CreationOptional<number>;
-  pathTypeId!: number;
+export class SkillImage extends Model<SkillImageAttributes> {
+  id!: number;
+  skillId!: number;
   backgroundColor!: string;
   layout!: string;
   url!: string;
-  deletedAt!: Date;
+  deletedAt?: Date;
   createdAt!: Date;
   updatedAt!: Date;
 }
 
-TypeImage.init(
+SkillImage.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -43,7 +32,7 @@ TypeImage.init(
       primaryKey: true,
       unique: true,
     },
-    pathTypeId: {
+    skillId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
@@ -78,17 +67,19 @@ TypeImage.init(
   },
   {
     sequelize,
-    modelName: 'TypeImage',
-    tableName: 'path_type_image',
-    freezeTableName: true, // 테이블명 변경 불가
-    timestamps: true, // createdAt, updatedAt 컬럼 생성
-    paranoid: true, // deletedAt 컬럼 생성, soft delete 시 나중에 복구 가능
+    modelName: 'SkillImage',
+    tableName: 'skill_image',
+    freezeTableName: true,
+    timestamps: true,
+    paranoid: true,
   },
 );
 
-TypeImage.belongsTo(TypeDef, {
-  foreignKey: 'pathTypeId',
-  as: 'image',
+// Skill 모델과의 관계 설정
+/*
+SkillImage.belongsTo(Skill, {
+  foreignKey: 'skillId',
+  as: 'skill',
 });
-
-export default TypeImage;
+*/
+export default SkillImage;

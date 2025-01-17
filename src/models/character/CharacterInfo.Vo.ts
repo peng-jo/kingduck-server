@@ -7,6 +7,7 @@ import {
   Sequelize,
 } from 'sequelize';
 import sequelize from '..';
+import { Character } from './CharacterDef.Vo'; // 올바른 모델 임포트
 
 interface CharacterInfoAttributes {
   id?: number;
@@ -89,3 +90,10 @@ CharacterInfo.init(
     paranoid: true, // deletedAt 컬럼 생성, soft delete 시 나중에 복구 가능
   },
 );
+
+// Character 모델과의 관계 설정
+
+CharacterInfo.belongsTo(Character, {
+  foreignKey: 'characterId',
+  as: 'character',
+});

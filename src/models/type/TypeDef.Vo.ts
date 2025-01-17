@@ -5,12 +5,14 @@ import {
   CreationOptional,
   DataTypes,
   Sequelize,
+  HasMany,
+  ForeignKey,
 } from 'sequelize';
 import sequelize from '..';
 
 interface TypeDefAttributes {
   id?: number;
-  characterId: number;
+  gameId: number;
   group: string;
   name: any;
   info?: string;
@@ -24,7 +26,7 @@ export class TypeDef extends Model<
   InferCreationAttributes<TypeDef>
 > {
   id!: CreationOptional<number>;
-  characterId!: number;
+  gameId!: number;
   group!: string;
   name!: any;
   info!: string;
@@ -41,7 +43,7 @@ TypeDef.init(
       primaryKey: true,
       unique: true,
     },
-    characterId: {
+    gameId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
@@ -82,3 +84,9 @@ TypeDef.init(
     paranoid: true, // deletedAt 컬럼 생성, soft delete 시 나중에 복구 가능
   },
 );
+
+import { TypeImage } from './TypeImage.Vo';
+TypeDef.hasOne(TypeImage, {
+  foreignKey: 'pathTypeId',
+  as: 'image',
+});

@@ -36,7 +36,7 @@ const sequelize = new Sequelize(
     },
     timezone: '+09:00',
     pool: config.db_server.pool,
-    logging: process.env.NODE_ENV === 'prod' ? false : console.log,
+    logging: false, //process.env.NODE_ENV === 'prod' ? false : console.log,
   },
 );
 

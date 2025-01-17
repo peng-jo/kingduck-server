@@ -9,7 +9,7 @@
 
 -- 테이블 public.character 구조 내보내기
 CREATE TABLE IF NOT EXISTS "character" (
-	"id" INTEGER NOT NULL,
+	"id" SERIAL NOT NULL,
 	"gameId" INTEGER NOT NULL,
 	"pageId" VARCHAR NULL DEFAULT NULL,
 	"isNew" BOOLEAN NULL DEFAULT false,
@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS "character" (
 	"createdAt" TIMESTAMP NULL DEFAULT NULL,
 	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
 	PRIMARY KEY ("id"),
-	UNIQUE "character_gameId_key" ("gameId"),
 	CONSTRAINT "character_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "game" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
@@ -32,7 +31,7 @@ CREATE TABLE IF NOT EXISTS "character" (
 
 -- 테이블 public.character_details 구조 내보내기
 CREATE TABLE IF NOT EXISTS "character_details" (
-	"id" INTEGER NOT NULL,
+	"id" SERIAL NOT NULL,
 	"characterId" INTEGER NOT NULL,
 	"lang" VARCHAR NOT NULL DEFAULT 'kr',
 	"stats" JSONB NULL DEFAULT NULL,
@@ -42,7 +41,6 @@ CREATE TABLE IF NOT EXISTS "character_details" (
 	"createdAt" TIMESTAMP NULL DEFAULT NULL,
 	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
 	PRIMARY KEY ("id"),
-	UNIQUE "character_details_characterId_key" ("characterId"),
 	CONSTRAINT "character_details_characterId_fkey" FOREIGN KEY ("characterId") REFERENCES "character" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
@@ -50,7 +48,7 @@ CREATE TABLE IF NOT EXISTS "character_details" (
 
 -- 테이블 public.character_image 구조 내보내기
 CREATE TABLE IF NOT EXISTS "character_image" (
-	"id" INTEGER NOT NULL,
+	"id" SERIAL NOT NULL,
 	"characterId" INTEGER NOT NULL,
 	"backgroundColor" VARCHAR NOT NULL DEFAULT '#ffffff',
 	"layout" VARCHAR NULL DEFAULT NULL,
@@ -59,7 +57,6 @@ CREATE TABLE IF NOT EXISTS "character_image" (
 	"createdAt" TIMESTAMP NULL DEFAULT NULL,
 	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
 	PRIMARY KEY ("id"),
-	UNIQUE "character_image_characterId_key" ("characterId"),
 	CONSTRAINT "character_image_characterId_fkey" FOREIGN KEY ("characterId") REFERENCES "character" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
@@ -67,7 +64,7 @@ CREATE TABLE IF NOT EXISTS "character_image" (
 
 -- 테이블 public.game 구조 내보내기
 CREATE TABLE IF NOT EXISTS "game" (
-	"id" INTEGER NOT NULL,
+	"id" SERIAL NOT NULL,
 	"title" JSONB NOT NULL,
 	"deletedAt" TIMESTAMP NULL DEFAULT NULL,
 	"createdAt" TIMESTAMP NULL DEFAULT NULL,
@@ -79,14 +76,13 @@ CREATE TABLE IF NOT EXISTS "game" (
 
 -- 테이블 public.game_image 구조 내보내기
 CREATE TABLE IF NOT EXISTS "game_image" (
-	"id" INTEGER NOT NULL,
+	"id" SERIAL NOT NULL,
 	"gameId" INTEGER NOT NULL,
 	"url" TEXT NOT NULL,
 	"deletedAt" TIMESTAMP NULL DEFAULT NULL,
 	"createdAt" TIMESTAMP NULL DEFAULT NULL,
 	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
 	PRIMARY KEY ("id"),
-	UNIQUE "game_image_gameId_key" ("gameId"),
 	CONSTRAINT "game_image_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "game" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
@@ -94,7 +90,7 @@ CREATE TABLE IF NOT EXISTS "game_image" (
 
 -- 테이블 public.game_setting 구조 내보내기
 CREATE TABLE IF NOT EXISTS "game_setting" (
-	"id" INTEGER NOT NULL,
+	"id" SERIAL NOT NULL,
 	"gameId" INTEGER NOT NULL,
 	"devCorp" VARCHAR NOT NULL,
 	"relatedUrl" JSONB NULL DEFAULT NULL,
@@ -104,7 +100,6 @@ CREATE TABLE IF NOT EXISTS "game_setting" (
 	"createdAt" TIMESTAMP NULL DEFAULT NULL,
 	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
 	PRIMARY KEY ("id"),
-	UNIQUE "game_setting_gameId_key" ("gameId"),
 	CONSTRAINT "game_setting_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "game" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
@@ -112,7 +107,7 @@ CREATE TABLE IF NOT EXISTS "game_setting" (
 
 -- 테이블 public.item 구조 내보내기
 CREATE TABLE IF NOT EXISTS "item" (
-	"id" INTEGER NOT NULL,
+	"id" SERIAL NOT NULL,
 	"characterId" INTEGER NULL DEFAULT 0,
 	"gameId" INTEGER NOT NULL,
 	"itemtype" VARCHAR NULL DEFAULT NULL,
@@ -134,7 +129,7 @@ CREATE TABLE IF NOT EXISTS "item" (
 
 -- 테이블 public.path_type 구조 내보내기
 CREATE TABLE IF NOT EXISTS "path_type" (
-	"id" INTEGER NOT NULL,
+	"id" SERIAL NOT NULL,
 	"characterId" INTEGER NOT NULL,
 	"group" VARCHAR NOT NULL,
 	"name" JSONB NOT NULL,
@@ -149,7 +144,7 @@ CREATE TABLE IF NOT EXISTS "path_type" (
 
 -- 테이블 public.path_type_image 구조 내보내기
 CREATE TABLE IF NOT EXISTS "path_type_image" (
-	"id" INTEGER NOT NULL,
+	"id" SERIAL NOT NULL,
 	"pathTypeId" INTEGER NOT NULL,
 	"backgroundColor" VARCHAR NOT NULL DEFAULT '#ffffff',
 	"layout" VARCHAR NULL DEFAULT NULL,
@@ -158,7 +153,6 @@ CREATE TABLE IF NOT EXISTS "path_type_image" (
 	"createdAt" TIMESTAMP NULL DEFAULT NULL,
 	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
 	PRIMARY KEY ("id"),
-	UNIQUE "path_type_image_pathTypeId_key" ("pathTypeId")
 );
 
 -- 내보낼 데이터가 선택되어 있지 않습니다.

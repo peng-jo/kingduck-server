@@ -1,18 +1,25 @@
-import {
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
-  CreationOptional,
-  DataTypes,
-  Sequelize,
-} from 'sequelize';
+import { Model, DataTypes, Sequelize } from 'sequelize';
 import sequelize from '..';
 
-export class Character extends Model<
-  InferAttributes<Character>,
-  InferCreationAttributes<Character>
-> {
-  id!: CreationOptional<number>;
+interface CharacterAttributes {
+  id?: number;
+  gameId: number;
+  pageId?: string;
+  isNew?: boolean;
+  isReleased?: boolean;
+  name: any;
+  element?: string;
+  path?: string;
+  rarity?: string;
+  voiceActors?: any;
+  releaseDate?: Date;
+  deletedAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export class Character extends Model<CharacterAttributes> {
+  id!: number;
   gameId!: number;
   pageId!: string;
   isNew!: boolean;
@@ -23,7 +30,7 @@ export class Character extends Model<
   rarity!: string;
   voiceActors!: any;
   releaseDate!: Date;
-  deletedAt!: Date;
+  deletedAt?: Date;
   createdAt!: Date;
   updatedAt!: Date;
 }
@@ -39,20 +46,20 @@ Character.init(
     gameId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      unique: true,
     },
     pageId: {
       type: DataTypes.STRING,
       allowNull: true,
+      defaultValue: null,
     },
     isNew: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
+      allowNull: true,
       defaultValue: false,
     },
     isReleased: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
+      allowNull: true,
       defaultValue: false,
     },
     name: {
@@ -62,26 +69,32 @@ Character.init(
     element: {
       type: DataTypes.STRING,
       allowNull: true,
+      defaultValue: null,
     },
     path: {
       type: DataTypes.STRING,
       allowNull: true,
+      defaultValue: null,
     },
     rarity: {
       type: DataTypes.STRING,
       allowNull: true,
+      defaultValue: null,
     },
     voiceActors: {
       type: DataTypes.JSONB,
       allowNull: true,
+      defaultValue: null,
     },
     releaseDate: {
       type: DataTypes.DATE,
       allowNull: true,
+      defaultValue: null,
     },
     deletedAt: {
       type: DataTypes.DATE,
       allowNull: true,
+      defaultValue: null,
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -98,8 +111,23 @@ Character.init(
     sequelize,
     modelName: 'Character',
     tableName: 'character',
-    freezeTableName: true, // 테이블명 변경 불가
-    timestamps: true, // create_at, updated_at 컬럼 생성
-    paranoid: true, // deleted_at 컬럼 생성, soft delete 시 나중에 복구 가능
+    freezeTableName: true,
+    timestamps: true,
+    paranoid: true,
   },
 );
+
+// CharacterImage 모델과의 관계 설정
+import { CharacterImage } from './CharacterImage.Vo';
+import { CharacterInfo } from './CharacterInfo.Vo';
+
+Character.hasMany(CharacterImage, {
+  foreignKey: 'characterId',
+  as: 'images',
+});
+Character.hasOne(CharacterInfo, {
+  foreignKey: 'characterId',
+  as: 'info',
+});
+
+export default Character;

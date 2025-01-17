@@ -8,6 +8,7 @@ const router = express.Router();
 //router.use(cors(corsOpt));
 
 // 요청 method 별로 라우팅
-router.get('/', GameController.getGameList);
+router.get('/list/', GameController.getGameList);
+router.get('/item/', GameController.getGame);
 
 export default router;

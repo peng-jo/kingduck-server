@@ -12,19 +12,7 @@ import relicsList from './RelicsItem.json';
 import Planetary from './Planetary.json';
 import itemData from './item.json';
 
-import testType from './type/testType.json';
-import koType from './type/kotype.json';
-import jpType from './type/jptype.json';
-import cnType from './type/cntype.json';
-import enType from './type/entype.json';
-
-export class TestController {
-  async get_test(req: Request, res: Response): Promise<void> {
-    console.log('----------------------------------');
-    console.log('chat');
-    console.log('파일 데이터 테스트');
-    console.log('----------------------------------');
-  }
+export class ItemTestController {
   // 아이템 넣기 - json 데이터 형태
   // 붕괴 스타레일 유효
   async itemRelicsSet(req: any, res: any): Promise<void> {
@@ -213,7 +201,7 @@ export class TestController {
   async itemSearch(req: any, res: any): Promise<void> {
     const itemSearchData = await Item.findAll({
       where: {
-        'itemReferences.image.src': 'SpriteOutput/ItemFigures/2.png',
+        'itemReferences.image.src': 'SpriteOutput/ItemFigures/201.png',
       },
     });
     res.status(200).json({
@@ -286,16 +274,6 @@ export class TestController {
     res.status(200).json({
       items: setTypesItem,
       images: setTypesImageItem,
-    });
-  }
-  async typeTest(req: any, res: any): Promise<void> {
-    const itemSearchData = await Item.findAll({
-      where: {
-        'itemReferences.image.src': 'SpriteOutput/ItemFigures/2.png',
-      },
-    });
-    res.status(200).json({
-      items: itemSearchData,
     });
   }
 }
