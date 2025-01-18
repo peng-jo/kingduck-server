@@ -380,6 +380,7 @@ export class ItemTestController {
             image: {
               src: starrailstationItem.iconPath, // 정보 처리를 위한 일부 선택 <- 실적용시 삭제 필요
             },
+            baseKey: key,
           },
           skillId: 0,
         };

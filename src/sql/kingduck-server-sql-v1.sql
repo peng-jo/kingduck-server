@@ -1,3 +1,9 @@
+-- --------------------------------------------------------
+-- 호스트:                          127.0.0.1
+-- 서버 버전:                        PostgreSQL 17.2 on x86_64-windows, compiled by msvc-19.42.34435, 64-bit
+-- 서버 OS:                        
+-- HeidiSQL 버전:                  12.8.0.6908
+-- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET NAMES  */;
@@ -7,10 +13,9 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-
 -- 테이블 public.game 구조 내보내기
 CREATE TABLE IF NOT EXISTS "game" (
-	"id" SERIAL NOT NULL,
+	"id" INTEGER NOT NULL,
 	"title" JSONB NOT NULL,
 	"deletedAt" TIMESTAMP NULL DEFAULT NULL,
 	"createdAt" TIMESTAMP NULL DEFAULT NULL,
@@ -22,13 +27,14 @@ CREATE TABLE IF NOT EXISTS "game" (
 
 -- 테이블 public.game_image 구조 내보내기
 CREATE TABLE IF NOT EXISTS "game_image" (
-	"id" SERIAL NOT NULL,
+	"id" INTEGER NOT NULL,
 	"gameId" INTEGER NOT NULL,
 	"url" TEXT NOT NULL,
 	"deletedAt" TIMESTAMP NULL DEFAULT NULL,
 	"createdAt" TIMESTAMP NULL DEFAULT NULL,
 	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
 	PRIMARY KEY ("id"),
+	UNIQUE "game_image_gameId_key" ("gameId"),
 	CONSTRAINT "game_image_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "game" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
@@ -36,7 +42,7 @@ CREATE TABLE IF NOT EXISTS "game_image" (
 
 -- 테이블 public.game_setting 구조 내보내기
 CREATE TABLE IF NOT EXISTS "game_setting" (
-	"id" SERIAL NOT NULL,
+	"id" INTEGER NOT NULL,
 	"gameId" INTEGER NOT NULL,
 	"devCorp" VARCHAR NOT NULL,
 	"relatedUrl" JSONB NULL DEFAULT NULL,
@@ -46,6 +52,7 @@ CREATE TABLE IF NOT EXISTS "game_setting" (
 	"createdAt" TIMESTAMP NULL DEFAULT NULL,
 	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
 	PRIMARY KEY ("id"),
+	UNIQUE "game_setting_gameId_key" ("gameId"),
 	CONSTRAINT "game_setting_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "game" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
@@ -104,12 +111,11 @@ CREATE TABLE IF NOT EXISTS "character_image" (
 
 -- 내보낼 데이터가 선택되어 있지 않습니다.
 
-
 -- 내보낼 데이터가 선택되어 있지 않습니다.
 
 -- 테이블 public.item 구조 내보내기
 CREATE TABLE IF NOT EXISTS "item" (
-	"id" SERIAL NOT NULL,
+	"id" INTEGER NOT NULL,
 	"characterId" INTEGER NULL DEFAULT 0,
 	"gameId" INTEGER NOT NULL,
 	"itemtype" VARCHAR NULL DEFAULT NULL,
@@ -131,8 +137,8 @@ CREATE TABLE IF NOT EXISTS "item" (
 
 -- 테이블 public.path_type 구조 내보내기
 CREATE TABLE IF NOT EXISTS "path_type" (
-	"id" SERIAL NOT NULL,
-	"characterId" INTEGER NOT NULL,
+	"id" INTEGER NOT NULL,
+	"gameId" INTEGER NOT NULL,
 	"group" VARCHAR NOT NULL,
 	"name" JSONB NOT NULL,
 	"info" VARCHAR NULL DEFAULT NULL,
@@ -146,7 +152,7 @@ CREATE TABLE IF NOT EXISTS "path_type" (
 
 -- 테이블 public.path_type_image 구조 내보내기
 CREATE TABLE IF NOT EXISTS "path_type_image" (
-	"id" SERIAL NOT NULL,
+	"id" INTEGER NOT NULL,
 	"pathTypeId" INTEGER NOT NULL,
 	"backgroundColor" VARCHAR NOT NULL DEFAULT '#ffffff',
 	"layout" VARCHAR NULL DEFAULT NULL,
@@ -155,6 +161,43 @@ CREATE TABLE IF NOT EXISTS "path_type_image" (
 	"createdAt" TIMESTAMP NULL DEFAULT NULL,
 	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
 	PRIMARY KEY ("id"),
+	UNIQUE "path_type_image_pathTypeId_key" ("pathTypeId")
+);
+
+-- 내보낼 데이터가 선택되어 있지 않습니다.
+
+-- 테이블 public.skill 구조 내보내기
+CREATE TABLE IF NOT EXISTS "skill" (
+	"id" SERIAL NOT NULL,
+	"gameId" INTEGER NOT NULL,
+	"characterId" INTEGER NOT NULL,
+	"name" JSONB NOT NULL,
+	"tag" VARCHAR NULL DEFAULT NULL,
+	"info" VARCHAR NULL DEFAULT NULL,
+	"type" VARCHAR NULL DEFAULT NULL,
+	"levelReq" INTEGER NULL DEFAULT NULL,
+	"promotionReq" INTEGER NULL DEFAULT NULL,
+	"levelData" JSONB NULL DEFAULT NULL,
+	"deletedAt" TIMESTAMP NULL DEFAULT NULL,
+	"createdAt" TIMESTAMP NULL DEFAULT NULL,
+	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
+	PRIMARY KEY ("id")
+);
+
+-- 내보낼 데이터가 선택되어 있지 않습니다.
+
+-- 테이블 public.skill_image 구조 내보내기
+CREATE TABLE IF NOT EXISTS "skill_image" (
+	"id" SERIAL NOT NULL,
+	"skillId" INTEGER NOT NULL,
+	"backgroundColor" VARCHAR NOT NULL DEFAULT '#ffffff',
+	"layout" VARCHAR NULL DEFAULT NULL,
+	"url" TEXT NOT NULL,
+	"deletedAt" TIMESTAMP NULL DEFAULT NULL,
+	"createdAt" TIMESTAMP NULL DEFAULT NULL,
+	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
+	PRIMARY KEY ("id"),
+	UNIQUE "skill_image_skillId_key" ("skillId")
 );
 
 -- 내보낼 데이터가 선택되어 있지 않습니다.

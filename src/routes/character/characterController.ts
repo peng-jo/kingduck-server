@@ -28,6 +28,7 @@ async function itemForSearch(data: any) {
         'itemReferences',
         'skillId',
       ],
+      order: [['rarity', 'DESC']],
       raw: true,
     });
     itemSearchArr.push(itemData);
@@ -77,6 +78,10 @@ export class CharacterController {
         'path',
         'element',
         'id',
+      ],
+      order: [
+        ['rarity', 'DESC'],
+        ['releaseDate', 'DESC'],
       ],
       where: {
         gameId: query.gameId,
@@ -178,6 +183,7 @@ export class CharacterController {
             [Op.notLike]: '%card',
           },
         },
+        order: [['layout', 'DESC']],
         raw: true, // <----- HERE
       });
       outCharacterData.element = elementType;

@@ -27,9 +27,11 @@
     "pg": "^8.13.1",
     "pg-hstore": "^2.3.4",
     "prettier": "^3.4.2",
+    "progress-estimator": "^0.3.1",
     "puppeteer": "^24.1.0",
     "sequelize": "^6.37.5",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "youtube-dl-exec": "^3.0.13"
   },
   "devDependencies": {
     "ts-node-dev": "^2.0.0"
