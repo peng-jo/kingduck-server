@@ -145,19 +145,40 @@ export class CharacterTestController {
 
     // 재처리 - 키형태로 처리
     for (var key in hakushCharacter.items) {
-      const hakushItem: any = hakushCharacter.items[key];
+      console.log('----------------');
+      console.log('캐릭터 삽입 - 붕괴 스타레일');
+
+      const hakushItem: any = hakushCharacter.items[key]; // 다른 사이트 비교 검색처리
+      let ChkName = '';
+      const starrailstationItem: any = starrailstationCharacter.find(
+        (fitem) => fitem.pageId === hakushItem.icon,
+      );
+      const damageTypeItem: any = TypeList.find(
+        (fitem: any) => fitem.name.ko === starrailstationItem?.damageType.name,
+      );
+      const baseTypeItem: any = TypeList.find(
+        (fitem: any) => fitem.name.ko === starrailstationItem?.baseType.name,
+      );
+
+      if (hakushItem.kr === '{NICKNAME}') {
+        ChkName = '개척자';
+      } else {
+        ChkName = hakushItem.kr;
+      }
       const searchCharacter: any = await Character.findOne({
         where: {
-          'name.kr': hakushItem.kr,
+          'name.kr': ChkName,
+          element: String(damageTypeItem?.id),
+          path: String(baseTypeItem?.id),
         },
         raw: true,
       });
+      console.log('name:' + hakushItem.kr);
 
       if (searchCharacter?.id) {
+        console.log('이미 데이터 베이스에 있는것으로 확인 됩니다.');
         continue;
       } else {
-        console.log('name:' + hakushItem.kr);
-
         // 다른 사이트 비교 검색처리
         const starrailstationItem: any = starrailstationCharacter.find(
           (fitem) => fitem.pageId === hakushItem.icon,
@@ -224,9 +245,24 @@ export class CharacterTestController {
 
         // 일부 사항에 대한 값이 틀려서 따로 처리 해야됩니다.
         if (!prydwenItem?.isReleased || prydwenItem?.isReleased == null) {
-          setCharacterBase.isNew = 0;
+          setCharacterBase.isReleased = 0;
         } else {
-          setCharacterBase.isNew = 1;
+          setCharacterBase.isReleased = 1;
+        }
+
+        console.log(prydwenItem?.isReleased);
+
+        const search2Character: any = await Character.findOne({
+          where: {
+            'name.kr': setCharacterBase.name.kr,
+            element: String(damageTypeItem?.id),
+            path: String(baseTypeItem?.id),
+          },
+          raw: true,
+        });
+        if (search2Character?.id) {
+          console.log('이미 데이터 베이스에 있는것으로 확인 됩니다.');
+          continue;
         }
 
         // 캐릭터 세부정보 처리 표현

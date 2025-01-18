@@ -7,6 +7,48 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+
+-- 테이블 public.game 구조 내보내기
+CREATE TABLE IF NOT EXISTS "game" (
+	"id" SERIAL NOT NULL,
+	"title" JSONB NOT NULL,
+	"deletedAt" TIMESTAMP NULL DEFAULT NULL,
+	"createdAt" TIMESTAMP NULL DEFAULT NULL,
+	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
+	PRIMARY KEY ("id")
+);
+
+-- 내보낼 데이터가 선택되어 있지 않습니다.
+
+-- 테이블 public.game_image 구조 내보내기
+CREATE TABLE IF NOT EXISTS "game_image" (
+	"id" SERIAL NOT NULL,
+	"gameId" INTEGER NOT NULL,
+	"url" TEXT NOT NULL,
+	"deletedAt" TIMESTAMP NULL DEFAULT NULL,
+	"createdAt" TIMESTAMP NULL DEFAULT NULL,
+	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
+	PRIMARY KEY ("id"),
+	CONSTRAINT "game_image_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "game" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+-- 내보낼 데이터가 선택되어 있지 않습니다.
+
+-- 테이블 public.game_setting 구조 내보내기
+CREATE TABLE IF NOT EXISTS "game_setting" (
+	"id" SERIAL NOT NULL,
+	"gameId" INTEGER NOT NULL,
+	"devCorp" VARCHAR NOT NULL,
+	"relatedUrl" JSONB NULL DEFAULT NULL,
+	"storeUrl" JSONB NULL DEFAULT NULL,
+	"setting" JSONB NULL DEFAULT NULL,
+	"deletedAt" TIMESTAMP NULL DEFAULT NULL,
+	"createdAt" TIMESTAMP NULL DEFAULT NULL,
+	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
+	PRIMARY KEY ("id"),
+	CONSTRAINT "game_setting_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "game" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
 -- 테이블 public.character 구조 내보내기
 CREATE TABLE IF NOT EXISTS "character" (
 	"id" SERIAL NOT NULL,
@@ -62,46 +104,6 @@ CREATE TABLE IF NOT EXISTS "character_image" (
 
 -- 내보낼 데이터가 선택되어 있지 않습니다.
 
--- 테이블 public.game 구조 내보내기
-CREATE TABLE IF NOT EXISTS "game" (
-	"id" SERIAL NOT NULL,
-	"title" JSONB NOT NULL,
-	"deletedAt" TIMESTAMP NULL DEFAULT NULL,
-	"createdAt" TIMESTAMP NULL DEFAULT NULL,
-	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
-	PRIMARY KEY ("id")
-);
-
--- 내보낼 데이터가 선택되어 있지 않습니다.
-
--- 테이블 public.game_image 구조 내보내기
-CREATE TABLE IF NOT EXISTS "game_image" (
-	"id" SERIAL NOT NULL,
-	"gameId" INTEGER NOT NULL,
-	"url" TEXT NOT NULL,
-	"deletedAt" TIMESTAMP NULL DEFAULT NULL,
-	"createdAt" TIMESTAMP NULL DEFAULT NULL,
-	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
-	PRIMARY KEY ("id"),
-	CONSTRAINT "game_image_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "game" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
-);
-
--- 내보낼 데이터가 선택되어 있지 않습니다.
-
--- 테이블 public.game_setting 구조 내보내기
-CREATE TABLE IF NOT EXISTS "game_setting" (
-	"id" SERIAL NOT NULL,
-	"gameId" INTEGER NOT NULL,
-	"devCorp" VARCHAR NOT NULL,
-	"relatedUrl" JSONB NULL DEFAULT NULL,
-	"storeUrl" JSONB NULL DEFAULT NULL,
-	"setting" JSONB NULL DEFAULT NULL,
-	"deletedAt" TIMESTAMP NULL DEFAULT NULL,
-	"createdAt" TIMESTAMP NULL DEFAULT NULL,
-	"updatedAt" TIMESTAMP NULL DEFAULT NULL,
-	PRIMARY KEY ("id"),
-	CONSTRAINT "game_setting_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "game" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
-);
 
 -- 내보낼 데이터가 선택되어 있지 않습니다.
 
