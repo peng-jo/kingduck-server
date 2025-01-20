@@ -7,6 +7,7 @@ import youtubedl from 'youtube-dl-exec';
 import progressEstimator from 'progress-estimator';
 import { Character } from '../../models/character/CharacterDef.Vo';
 import { CharacterImage } from '../../models/character/CharacterImage.Vo';
+import { StringUtils } from '../../util/StringUtils';
 // 데이터 베이스 값 참조
 
 // 브라우저 내장의 경우  <- 정상 작동됨
@@ -100,8 +101,44 @@ export class TestController {
   async get_test(req: Request, res: Response): Promise<void> {
     console.log('----------------------------------');
     console.log('chat');
-    console.log('파일 데이터 테스트');
+    console.log('testStringUtils 테스트');
     console.log('----------------------------------');
+    // 테스트 함수
+    function testStringUtils() {
+      // 테스트 데이터
+      const testWhitespaceStr = 'Hello\u00A0World!'; // "Hello World!"
+      const testDateString = 'January 19th, 2025'; // "2025-01-19"
+      const testHyphenStr = 'hello-world-this-is-a-test'; // "Hello World This Is A Test"
+
+      // 공백 변환 테스트
+      const normalizedWhitespace =
+        StringUtils.normalizeWhitespace(testWhitespaceStr);
+      console.log(`Normalized Whitespace: ${normalizedWhitespace}`);
+      console.assert(
+        normalizedWhitespace === 'Hello World!',
+        `Expected "Hello World!", but got "${normalizedWhitespace}"`,
+      );
+
+      // 날짜 형식 변환 테스트
+      const formattedDate = StringUtils.formatDateString(testDateString);
+      console.log(`Formatted Date: ${formattedDate}`);
+      console.assert(
+        formattedDate === '2025-01-19',
+        `Expected "2025-01-19", but got "${formattedDate}"`,
+      );
+
+      // 하이픈 치환 및 대문자 변환 테스트
+      const capitalizedStr =
+        StringUtils.replaceHyphensAndCapitalize(testHyphenStr);
+      console.log(`Capitalized String: ${capitalizedStr}`);
+      console.assert(
+        capitalizedStr === 'Hello World This Is A Test',
+        `Expected "Hello World This Is A Test", but got "${capitalizedStr}"`,
+      );
+    }
+
+    // 테스트 실행
+    testStringUtils();
   }
   // 유튜브 크롤링 후 영상 다운로드 처리 구현
   // 파이썬 3.7 이상 설치 필요

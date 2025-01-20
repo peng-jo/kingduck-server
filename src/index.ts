@@ -7,6 +7,7 @@ import { config } from './config/config';
 import routers from './routes/';
 import sequelize from './models';
 import path from 'path';
+import logger from './utils/logger';
 
 const app = express();
 const port = config.port;
@@ -29,16 +30,25 @@ app.use('/assets', express.static(path.join(__dirname, '../static')));
 
 app.use('/', routers);
 
-app.listen(port, async () => {
-  console.log(`✅ Example app listening on port ${port}`);
+const server = app.listen(port, async () => {
+  try {
+    logger.info(`✅ Example app listening on port ${port}`);
 
-  //checking if connection is done
-  await sequelize
-    .authenticate()
-    .then(() => {
-      console.log(`✅ Database connected to discover`);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    await sequelize.authenticate();
+    logger.info(`✅ Database connected to discover`);
+  } catch (error) {
+    logger.error('❌ 서버 시작 실패:', error);
+  }
+});
+
+server.on('error', (error) => {
+  logger.error('❌ 서버 에러 발생:', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('❌ 처리되지 않은 Promise 거부:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  logger.error('❌ 처리되지 않은 예외 발생:', error);
 });

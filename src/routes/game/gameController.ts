@@ -35,25 +35,31 @@ export class GameController {
 
     const query = req.query;
 
-    console.log(query);
-
-    const gameList: any = await Game.findOne({
-      where: {
-        'title.en': query.en,
-      },
-    });
-    console.log(gameList);
-
-    if (gameList) {
-      res.status(200).json({
-        resultCode: 200,
-        resultMsg: 'NORMAL SERVICE',
-        items: gameList,
+    try {
+      const gameList: any = await Game.findOne({
+        where: {
+          'title.en': query.en,
+        },
       });
-    } else {
-      res.status(200).json({
-        resultCode: 400,
-        resultMsg: 'DATA BASE ERROR',
+      console.log(gameList);
+
+      if (gameList) {
+        res.status(200).json({
+          resultCode: 200,
+          resultMsg: 'NORMAL SERVICE',
+          items: gameList,
+        });
+      } else {
+        res.status(200).json({
+          resultCode: 400,
+          resultMsg: 'DATA BASE ERROR',
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching game list:', error);
+      res.status(500).json({
+        resultCode: 500,
+        resultMsg: 'INTERNAL SERVER ERROR',
       });
     }
   }
