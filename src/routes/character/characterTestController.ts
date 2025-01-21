@@ -1,10 +1,4 @@
-import express from 'express';
-import fs from 'fs';
 import path from 'path';
-import axios from 'axios';
-import puppeteer from 'puppeteer';
-import youtubedl from 'youtube-dl-exec';
-import progressEstimator from 'progress-estimator';
 import { QueryTypes, where, Op, Sequelize } from 'sequelize';
 
 // 데이터베이스 모델 임포트
@@ -474,31 +468,13 @@ export class CharacterTestController {
         }
 
         console.log('캐릭터 생성 완료 - ' + createCharacterBase.id);
-        setCharacterSkill.push(SkillsList);
-        setCharacterList.push(setCharacterBase);
-        setCharacterInfoList.push(setCharacterInfoBase);
-        setCharacterImageList.push({
-          characterId: createCharacterBase.id,
-          backgroundColor: '#ffffff',
-          layout: 'art',
-          url: 'assets/image/character/' + artImageVal,
-        });
-        setCharacterImageList.push({
-          characterId: createCharacterBase.id,
-          backgroundColor: '#ffffff',
-          layout: 'card',
-          url: 'assets/image/character/' + cardImageVal,
-        });
       }
 
       console.log('----------------');
     }
 
     res.status(200).json({
-      skill: setCharacterSkill,
-      cinfolist: setCharacterInfoList,
-      clist: setCharacterList,
-      cimage: setCharacterImageList,
+      message: '캐릭터 생성 완료',
     });
   }
 }

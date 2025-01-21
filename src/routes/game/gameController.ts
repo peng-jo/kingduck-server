@@ -46,12 +46,12 @@ export class GameController {
     console.log('특정 게임 조회');
     console.log('----------------------------------');
 
-    const query = req.query;
+    const { slug } = req.params;
 
     try {
       const gameData: any = await Game.findOne({
         where: {
-          'title.en': query.en,
+          'title.en': slug,
         },
       });
 
