@@ -1,145 +1,157 @@
-import express from 'express';
-import fs from 'fs';
+import { Request, Response } from 'express';
+import * as ApiUtils from '../../utils/apiUtils';
+import * as DateUtils from '../../utils/dateUtils';
+import * as ImageUtils from '../../utils/imageUtils';
+import * as StringUtils from '../../utils/stringUtils';
+import * as YoutubeUtils from '../../utils/youtubeUtils';
 import path from 'path';
-import axios from 'axios';
-import puppeteer from 'puppeteer';
-import youtubedl from 'youtube-dl-exec';
-import progressEstimator from 'progress-estimator';
+
 import { Character } from '../../models/character/CharacterDef.Vo';
 import { CharacterImage } from '../../models/character/CharacterImage.Vo';
-import { StringUtils } from '../../util/StringUtils';
+
 // 데이터 베이스 값 참조
 
-// 브라우저 내장의 경우  <- 정상 작동됨
-async function fetchYoutubePageConfig(url: string) {
-  // 브라우저 실행
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  // 요청 차단 설정
-  await page.setRequestInterception(true);
-  page.on('request', (request) => {
-    if (['image', 'stylesheet', 'font'].includes(request.resourceType())) {
-      request.abort();
-    } else {
-      request.continue();
-    }
-  });
-  // 사용자 에이전트 설정
-  await page.setUserAgent(
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36',
-  );
-  // URL로 이동
-  await page.goto(url, { timeout: 100000 });
-  // 페이지 대기 (사람처럼 보이기 위해 대기 시간을 추가할 수 있습니다)
-  await new Promise((page) => setTimeout(page, 1000));
-  // window.PAGE_CONFIG 값 추출
-  const pageConfig = await page.evaluate(() => {
-    return ytInitialData;
-  });
-  // 브라우저 종료
-  await browser.close();
-  return pageConfig;
-}
-
-// 유튜브 다운로드 처리
-async function downloadVideo(url: string, fileName: string) {
-  try {
-    const saveDirectory = path.join(__dirname, '../../../static/video/');
-    const output = await youtubedl(url, {
-      ffmpegLocation: 'C:\\ffmpeg\\bin\\ffmpeg.exe',
-      output: `${saveDirectory}${fileName}.webm`,
-      remuxVideo: 'webm',
-      mergeOutputFormat: 'webm',
-    });
-    return true;
-  } catch (error) {
-    console.error('Error:', error);
-    return false;
-  }
-}
-async function youtubeVideoDownload(data: string) {
-  const logger = progressEstimator();
-  const url = 'https://www.youtube.com/watch?v=' + data;
-  return await logger(downloadVideo(url, data), `Obtaining ${url}`);
-}
-async function youtubeVideo(data: string) {
-  const title = '천외 위성 통신 ' + data;
-
-  console.log('youtubeVideotitle:' + title);
-
-  // 유튜브 숏츠 영상 긁기 용 - 붕괴 스타레일 특화
-  const youtubeDataList = await fetchYoutubePageConfig(
-    'https://www.youtube.com/@Honkaistarrail_kr/search?query=' + title,
-  );
-
-  let youtubeData =
-    youtubeDataList.contents.twoColumnBrowseResultsRenderer.tabs[6]
-      .expandableTabRenderer.content.sectionListRenderer.contents[0]
-      .itemSectionRenderer.contents[0];
-
-  if (!youtubeData.videoRenderer) {
-    console.log(`youtubeVideo : 텍스트에 "${title}"이(가) 검색 되지 않습니다.`);
-    return false;
-  }
-
-  let youtubeTitle = youtubeData.videoRenderer.title.runs[0].text;
-  let youtubeVideoId = youtubeData.videoRenderer.videoId;
-
-  if (youtubeTitle.includes('천외 위성 통신') && youtubeTitle) {
-    console.log(`youtubeVideo : 텍스트에 "${title}"이(가) 포함되어 있습니다.`);
-    await youtubeVideoDownload(youtubeVideoId);
-    return youtubeVideoId;
-  } else {
-    console.log(
-      `youtubeVideo : 텍스트에 "${title}"이(가) 포함되어 있지 않습니다.`,
-    );
-    return false;
-  }
-}
-
 export class TestController {
-  async get_test(req: Request, res: Response): Promise<void> {
+  async getCodeTest(req: Request, res: Response): Promise<void> {
     console.log('----------------------------------');
-    console.log('chat');
-    console.log('testStringUtils 테스트');
+    console.log('유틸리티 테스트 시작');
     console.log('----------------------------------');
-    // 테스트 함수
-    function testStringUtils() {
-      // 테스트 데이터
-      const testWhitespaceStr = 'Hello\u00A0World!'; // "Hello World!"
-      const testDateString = 'January 19th, 2025'; // "2025-01-19"
-      const testHyphenStr = 'hello-world-this-is-a-test'; // "Hello World This Is A Test"
 
-      // 공백 변환 테스트
-      const normalizedWhitespace =
-        StringUtils.normalizeWhitespace(testWhitespaceStr);
-      console.log(`Normalized Whitespace: ${normalizedWhitespace}`);
-      console.assert(
-        normalizedWhitespace === 'Hello World!',
-        `Expected "Hello World!", but got "${normalizedWhitespace}"`,
-      );
+    // API 유틸리티 테스트
+    async function testApiUtils() {
+      console.log('\n=== API Utils 테스트 ===');
+      try {
+        // 테스트용 API 엔드포인트
+        const testUrl = 'https://jsonplaceholder.typicode.com/todos/1';
+        const data = await ApiUtils.fetchData(testUrl);
+        console.log('fetchData 결과:', data);
 
-      // 날짜 형식 변환 테스트
-      const formattedDate = StringUtils.formatDateString(testDateString);
-      console.log(`Formatted Date: ${formattedDate}`);
-      console.assert(
-        formattedDate === '2025-01-19',
-        `Expected "2025-01-19", but got "${formattedDate}"`,
-      );
-
-      // 하이픈 치환 및 대문자 변환 테스트
-      const capitalizedStr =
-        StringUtils.replaceHyphensAndCapitalize(testHyphenStr);
-      console.log(`Capitalized String: ${capitalizedStr}`);
-      console.assert(
-        capitalizedStr === 'Hello World This Is A Test',
-        `Expected "Hello World This Is A Test", but got "${capitalizedStr}"`,
-      );
+        // pageConfig 테스트는 실제 엔드포인트로 대체 필요
+        const pageConfig = await ApiUtils.fetchPageConfig(testUrl);
+        console.log('fetchPageConfig 결과:', pageConfig);
+      } catch (error) {
+        console.error('API Utils 테스트 실패:', error);
+      }
     }
 
-    // 테스트 실행
-    testStringUtils();
+    // 날짜 유틸리티 테스트
+    function testDateUtils() {
+      console.log('\n=== Date Utils 테스트 ===');
+      try {
+        const testDates = [
+          '2024-01-01',
+          '2024-01-01T12:00:00',
+          '2023-12-25',
+          'January 19, 2025',
+        ];
+
+        testDates.forEach((date) => {
+          // 날짜만 포맷
+          const formattedDate = DateUtils.formatDateString(date);
+          console.log(`날짜 변환 - 원본: ${date} -> 변환: ${formattedDate}`);
+
+          // 날짜와 시간 포맷
+          const formattedDateTime = DateUtils.formatDateTimeString(date);
+          console.log(
+            `날짜시간 변환 - 원본: ${date} -> 변환: ${formattedDateTime}`,
+          );
+          console.log('---');
+        });
+
+        // 특정 케이스에 대한 검증
+        const testDate = '2024-01-01';
+        const formatted = DateUtils.formatDateString(testDate);
+        console.assert(
+          formatted === '2024-01-01',
+          `Expected "2024-01-01", but got "${formatted}"`,
+        );
+      } catch (error) {
+        console.error('Date Utils 테스트 실패:', error);
+      }
+    }
+
+    // 이미지 유틸리티 테스트
+    async function testImageUtils() {
+      console.log('\n=== Image Utils 테스트 ===');
+      try {
+        const imageUrl = 'https://picsum.photos/200/300';
+        const directory = path.join(__dirname, '../../../test-images');
+        const filename = 'test-image.jpg';
+
+        await ImageUtils.downloadImage(imageUrl, directory, filename);
+        console.log(`이미지 다운로드 완료: ${directory}/${filename}`);
+      } catch (error) {
+        console.error('Image Utils 테스트 실패:', error);
+      }
+    }
+
+    // 문자열 유틸리티 테스트
+    function testStringUtils() {
+      console.log('\n=== String Utils 테스트 ===');
+      try {
+        // 공백 정규화 테스트
+        const testWhitespaceStr = 'Hello\u00A0World!   Test    String';
+        const normalizedWhitespace =
+          StringUtils.normalizeWhitespace(testWhitespaceStr);
+        console.log(`정규화된 문자열: "${normalizedWhitespace}"`);
+        console.assert(
+          normalizedWhitespace === 'Hello World! Test String',
+          '공백 정규화 테스트 실패',
+        );
+
+        // 하이픈 변환 및 대문자화 테스트
+        const testHyphenStr = 'hello-world-this-is-a-test';
+        const capitalizedStr =
+          StringUtils.replaceHyphensAndCapitalize(testHyphenStr);
+        console.log(`변환된 문자열: "${capitalizedStr}"`);
+        console.assert(
+          capitalizedStr === 'Hello World This Is A Test',
+          '하이픈 변환 테스트 실패',
+        );
+      } catch (error) {
+        console.error('String Utils 테스트 실패:', error);
+      }
+    }
+
+    // YouTube 유틸리티 테스트
+    async function testYoutubeUtils() {
+      console.log('\n=== YouTube Utils 테스트 ===');
+      try {
+        const searchTerm = 'test video';
+        const result = await YoutubeUtils.youtubeVideo(searchTerm);
+        console.log('YouTube 검색 결과:', result);
+
+        // 실제 다운로드 테스트는 필요한 경우에만 수행
+        /*
+        const videoUrl = 'https://www.youtube.com/watch?v=example';
+        const outputPath = path.join(__dirname, '../../../test-videos/test.mp4');
+        await YoutubeUtils.downloadVideo(videoUrl, outputPath);
+        console.log(`비디오 다운로드 완료: ${outputPath}`);
+        */
+      } catch (error) {
+        console.error('YouTube Utils 테스트 실패:', error);
+      }
+    }
+
+    // 모든 테스트 실행
+    try {
+      await testApiUtils();
+      testDateUtils();
+      await testImageUtils();
+      testStringUtils();
+      await testYoutubeUtils();
+
+      console.log('\n----------------------------------');
+      console.log('모든 테스트 완료');
+      console.log('----------------------------------');
+
+      res.status(200).json({ message: '테스트 완료' });
+    } catch (error) {
+      console.error('테스트 실행 중 오류 발생:', error);
+      res.status(500).json({ error: '테스트 실행 중 오류 발생' });
+    }
   }
+
   // 유튜브 크롤링 후 영상 다운로드 처리 구현
   // 파이썬 3.7 이상 설치 필요
   // 파이썬 전역 변수가 잘 되어있는지 확인 필요

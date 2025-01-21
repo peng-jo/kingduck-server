@@ -8,13 +8,19 @@ import { Op } from 'sequelize';
 import { Item } from '../../models/Item/ItemDef.Vo';
 import Skill from '../../models/skill/SkillDef.Vo';
 import SkillImage from '../../models/skill/SkillImage.Vo';
+import { Game } from '../../models/game/GameDef.Vo';
 
-// 아이템 검색 함수
-async function itemForSearch(data: any) {
+/**
+ * 아이템 검색 함수
+ * 아이템 ID 배열을 받아서 해당하는 아이템 정보를 조회
+ * @param data 아이템 ID 배열
+ * @returns 아이템 정보 배열
+ */
+async function itemForSearch(data: number[]) {
   const itemSearchArr = [];
   for (const item of Object.values(data)) {
     const itemData = await Item.findOne({
-      where: { id: item },
+      where: { id: Number(item) },
       attributes: [
         'itemtype',
         'name',
@@ -25,7 +31,7 @@ async function itemForSearch(data: any) {
         'itemReferences',
         'skillId',
       ],
-      order: [['rarity', 'DESC']],
+      order: [['rarity', 'DESC']], // 희귀도 높은 순으로 정렬
       raw: true,
     });
     itemSearchArr.push(itemData);
@@ -34,11 +40,26 @@ async function itemForSearch(data: any) {
 }
 
 export class CharacterController {
-  // 캐릭터 목록 조회
+  /**
+   * 캐릭터 목록 조회 API
+   * 게임 ID에 해당하는 캐릭터 목록을 반환
+   */
   async getCharacterList(req: any, res: any): Promise<void> {
-    const query = req.query;
+    const { slug } = req.params;
 
-    // 타입 목록 조회
+    console.log(slug);
+
+    const gameData: any = await Game.findOne({
+      where: {
+        'title.en': slug,
+      },
+      raw: true,
+      nest: true,
+    });
+
+    console.log(gameData.id);
+
+    // 타입(속성, 경로) 목록 조회
     const TypeList = await TypeDef.findAll({
       include: [
         {
@@ -48,18 +69,18 @@ export class CharacterController {
         },
       ],
       attributes: ['name', 'id'],
-      where: { gameId: query.gameId },
+      where: { gameId: gameData.id },
       raw: true,
       nest: true,
     });
 
-    // 캐릭터 목록 조회
+    // 캐릭터 목록 조회를 위한 쿼리 옵션
     const printVOquery = {
       include: [
         {
           model: CharacterImage,
           as: 'images',
-          where: { layout: 'card' },
+          where: { layout: 'card' }, // 카드 이미지만 조회
           attributes: ['url', 'layout'],
         },
       ],
@@ -73,13 +94,15 @@ export class CharacterController {
         'id',
       ],
       order: [
-        ['rarity', 'DESC'],
-        ['releaseDate', 'DESC'],
+        ['rarity', 'DESC'], // 희귀도 높은 순
+        ['releaseDate', 'DESC'], // 출시일 최신순
       ],
-      where: { gameId: query.gameId },
+      where: { gameId: gameData.id },
       raw: true,
       nest: true,
     };
+
+    // 캐릭터 데이터 조회
     const CharacterData = await Character.findAll({
       ...printVOquery,
       order: [
@@ -88,6 +111,7 @@ export class CharacterController {
       ],
     });
 
+    // 데이터가 없는 경우 에러 응답
     if (!CharacterData || CharacterData.length === 0) {
       return res.status(200).json({
         resultCode: 400,
@@ -95,7 +119,7 @@ export class CharacterController {
       });
     }
 
-    // 캐릭터 데이터 가공
+    // 캐릭터 데이터에 속성과 경로 정보 추가
     const CharacterList = CharacterData.map((item) => {
       const elementType = TypeList.find(
         (fitem) => Number(fitem.id) === Number(item?.element),
@@ -117,11 +141,14 @@ export class CharacterController {
     });
   }
 
-  // 캐릭터 상세 조회
+  /**
+   * 캐릭터 상세 정보 조회 API
+   * 캐릭터 ID에 해당하는 상세 정보를 반환
+   */
   async getCharacter(req: any, res: any): Promise<void> {
     const { id } = req.query;
 
-    // 캐릭터 기본 정보 조회
+    // 캐릭터 기본 정보와 스탯/아이템/랭크 정보 조회
     const CharacterData = await Character.findOne({
       include: [
         {
@@ -142,7 +169,7 @@ export class CharacterController {
       });
     }
 
-    // 추가 데이터 조회
+    // 추가 데이터 병렬 조회 (속성, 경로, 스킬, 이미지)
     const [elementType, pathType, skillData, images] = await Promise.all([
       // 속성 타입 조회
       TypeDef.findOne({
@@ -194,7 +221,7 @@ export class CharacterController {
         raw: true,
         nest: true,
       }),
-      // 이미지 조회
+      // 캐릭터 이미지 조회 (카드 이미지 제외)
       CharacterImage.findAll({
         where: {
           characterId: id,
@@ -205,7 +232,7 @@ export class CharacterController {
       }),
     ]);
 
-    // 아이템 데이터 조회
+    // 캐릭터 장착 아이템 데이터 조회
     const [cardItems, relicItems, accessoryItems] = await Promise.all([
       itemForSearch(CharacterData.info.itemData.card),
       itemForSearch(CharacterData.info.itemData.relics),
