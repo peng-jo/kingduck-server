@@ -119,7 +119,7 @@ export class CharacterQuery extends GameQuery {
             attributes: ['url', 'backgroundColor'],
           },
         ],
-        where: { id: pathId },
+        where: { characterId: characterId },
         attributes: [
           'name',
           'tag',
