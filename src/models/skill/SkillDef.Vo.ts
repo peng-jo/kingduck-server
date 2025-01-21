@@ -104,10 +104,8 @@ Skill.init(
 );
 
 // SkillImage 모델과의 관계 설정
-/*
-Skill.hasOne(SkillImage, {
+Skill.hasMany(SkillImage, {
   foreignKey: 'skillId',
   as: 'image',
 });
-*/
 export default Skill;

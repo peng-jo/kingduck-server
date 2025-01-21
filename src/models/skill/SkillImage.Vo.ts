@@ -1,6 +1,5 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
 import sequelize from '..';
-import Skill from './SkillDef.Vo'; // Skill 모델 임포트
 
 interface SkillImageAttributes {
   id?: number;
@@ -77,9 +76,11 @@ SkillImage.init(
 
 // Skill 모델과의 관계 설정
 /*
+import Skill from './SkillDef.Vo'; // Skill 모델 임포트
 SkillImage.belongsTo(Skill, {
   foreignKey: 'skillId',
   as: 'skill',
 });
 */
+
 export default SkillImage;
