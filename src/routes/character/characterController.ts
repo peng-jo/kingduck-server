@@ -11,10 +11,12 @@ import SkillImage from '../../models/skill/SkillImage.Vo';
 import { Game } from '../../models/game/GameDef.Vo';
 
 /**
- * 아이템 검색 함수
- * 아이템 ID 배열을 받아서 해당하는 아이템 정보를 조회
- * @param data 아이템 ID 배열
- * @returns 아이템 정보 배열
+ * 아이템 검색 유틸리티 함수
+ * 아이템 ID 배열을 받아서 해당하는 아이템들의 상세 정보를 조회
+ * 희귀도 높은 순으로 정렬하여 반환
+ *
+ * @param data 조회할 아이템 ID 배열
+ * @returns 아이템 상세 정보 배열
  */
 async function itemForSearch(data: number[]) {
   const itemSearchArr = [];
@@ -31,7 +33,7 @@ async function itemForSearch(data: number[]) {
         'itemReferences',
         'skillId',
       ],
-      order: [['rarity', 'DESC']], // 희귀도 높은 순으로 정렬
+      order: [['rarity', 'DESC']],
       raw: true,
     });
     itemSearchArr.push(itemData);
@@ -42,24 +44,22 @@ async function itemForSearch(data: number[]) {
 export class CharacterController {
   /**
    * 캐릭터 목록 조회 API
-   * 게임 ID에 해당하는 캐릭터 목록을 반환
+   * 1. 게임 정보 조회
+   * 2. 타입(속성, 경로) 정보 조회
+   * 3. 캐릭터 기본 정보 및 이미지 조회
+   * 4. 캐릭터별 속성/경로 정보 매핑
    */
   async getCharacterList(req: any, res: any): Promise<void> {
     const { slug } = req.params;
 
-    console.log(slug);
-
+    // 1. 게임 정보 조회
     const gameData: any = await Game.findOne({
-      where: {
-        'title.en': slug,
-      },
+      where: { 'title.en': slug },
       raw: true,
       nest: true,
     });
 
-    console.log(gameData.id);
-
-    // 타입(속성, 경로) 목록 조회
+    // 2. 타입 정보 조회 (속성, 경로)
     const TypeList = await TypeDef.findAll({
       include: [
         {
@@ -74,8 +74,8 @@ export class CharacterController {
       nest: true,
     });
 
-    // 캐릭터 목록 조회를 위한 쿼리 옵션
-    const printVOquery = {
+    // 3. 캐릭터 기본 정보 조회
+    const CharacterData = await Character.findAll({
       include: [
         {
           model: CharacterImage,
@@ -94,45 +94,29 @@ export class CharacterController {
         'id',
       ],
       order: [
-        ['rarity', 'DESC'], // 희귀도 높은 순
+        ['rarity', 'DESC'], // 희귀도 높은순
         ['releaseDate', 'DESC'], // 출시일 최신순
       ],
       where: { gameId: gameData.id },
       raw: true,
       nest: true,
-    };
-
-    // 캐릭터 데이터 조회
-    const CharacterData = await Character.findAll({
-      ...printVOquery,
-      order: [
-        ['rarity', 'DESC'],
-        ['releaseDate', 'DESC'],
-      ],
     });
 
-    // 데이터가 없는 경우 에러 응답
-    if (!CharacterData || CharacterData.length === 0) {
+    if (!CharacterData?.length) {
       return res.status(200).json({
         resultCode: 400,
         resultMsg: 'DATA BASE ERROR',
       });
     }
 
-    // 캐릭터 데이터에 속성과 경로 정보 추가
-    const CharacterList = CharacterData.map((item) => {
-      const elementType = TypeList.find(
-        (fitem) => Number(fitem.id) === Number(item?.element),
-      );
-      const pathType = TypeList.find(
-        (fitem) => Number(fitem.id) === Number(item?.path),
-      );
-      return {
-        ...item,
-        element: elementType,
-        path: pathType,
-      };
-    });
+    // 4. 캐릭터별 속성/경로 정보 매핑
+    const CharacterList = CharacterData.map((item) => ({
+      ...item,
+      element: TypeList.find(
+        (type) => Number(type.id) === Number(item?.element),
+      ),
+      path: TypeList.find((type) => Number(type.id) === Number(item?.path)),
+    }));
 
     return res.status(200).json({
       resultCode: 200,
@@ -143,12 +127,23 @@ export class CharacterController {
 
   /**
    * 캐릭터 상세 정보 조회 API
-   * 캐릭터 ID에 해당하는 상세 정보를 반환
+   * 1. 게임 정보 조회
+   * 2. 캐릭터 기본 정보 조회
+   * 3. 추가 정보 병렬 조회 (속성, 경로, 스킬, 이미지)
+   * 4. 장착 아이템 정보 조회
+   * 5. 응답 데이터 구성
    */
   async getCharacter(req: any, res: any): Promise<void> {
-    const { id } = req.query;
+    const { slug, id } = req.params;
 
-    // 캐릭터 기본 정보와 스탯/아이템/랭크 정보 조회
+    // 1. 게임 정보 조회
+    const gameData: any = await Game.findOne({
+      where: { 'title.en': slug },
+      raw: true,
+      nest: true,
+    });
+
+    // 2. 캐릭터 기본 정보 조회
     const CharacterData = await Character.findOne({
       include: [
         {
@@ -169,9 +164,9 @@ export class CharacterController {
       });
     }
 
-    // 추가 데이터 병렬 조회 (속성, 경로, 스킬, 이미지)
+    // 3. 추가 정보 병렬 조회
     const [elementType, pathType, skillData, images] = await Promise.all([
-      // 속성 타입 조회
+      // 속성 정보
       TypeDef.findOne({
         include: [
           {
@@ -185,7 +180,7 @@ export class CharacterController {
         raw: true,
         nest: true,
       }),
-      // 경로 타입 조회
+      // 경로 정보
       TypeDef.findOne({
         include: [
           {
@@ -199,7 +194,7 @@ export class CharacterController {
         raw: true,
         nest: true,
       }),
-      // 스킬 데이터 조회
+      // 스킬 정보
       Skill.findAll({
         include: [
           {
@@ -221,7 +216,7 @@ export class CharacterController {
         raw: true,
         nest: true,
       }),
-      // 캐릭터 이미지 조회 (카드 이미지 제외)
+      // 캐릭터 이미지 (카드 제외)
       CharacterImage.findAll({
         where: {
           characterId: id,
@@ -232,14 +227,14 @@ export class CharacterController {
       }),
     ]);
 
-    // 캐릭터 장착 아이템 데이터 조회
+    // 4. 장착 아이템 정보 조회
     const [cardItems, relicItems, accessoryItems] = await Promise.all([
       itemForSearch(CharacterData.info.itemData.card),
       itemForSearch(CharacterData.info.itemData.relics),
       itemForSearch(CharacterData.info.itemData.accessories),
     ]);
 
-    // 응답 데이터 구성
+    // 5. 응답 데이터 구성
     const responseData = {
       ...CharacterData,
       element: elementType,
