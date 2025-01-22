@@ -1,6 +1,6 @@
 import express from 'express';
 import GameQuery from '../../manager/AllGame/GameQuery';
-import CharacterSearch from '../../manager/HonkaiStarRail/CharacterSearch';
+import HonkaiStarRailCharacterSearch from '../../manager/HonkaiStarRail/CharacterSearch';
 
 export class CharacterController {
   /**
@@ -23,7 +23,8 @@ export class CharacterController {
       });
     }
 
-    const result = await CharacterSearch.searchCharacterList(gameData);
+    const result =
+      await HonkaiStarRailCharacterSearch.searchCharacterList(gameData);
 
     return res.status(200).json(result);
   }
@@ -49,7 +50,10 @@ export class CharacterController {
       });
     }
 
-    const result = await CharacterSearch.searchCharacterDetail(gameData, id);
+    const result = await HonkaiStarRailCharacterSearch.searchCharacterDetail(
+      gameData,
+      id,
+    );
     return res.status(200).json(result);
   }
 }

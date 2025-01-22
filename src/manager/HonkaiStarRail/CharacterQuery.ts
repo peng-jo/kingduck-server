@@ -12,7 +12,7 @@ import { GameQuery } from '../AllGame/GameQuery';
  * 붕괴: 스타레일 캐릭터 조회 관리 클래스
  * GameQuery 클래스를 상속받아 공통 기능을 재사용
  */
-export class CharacterQuery extends GameQuery {
+export class HonkaiStarRailCharacterQuery extends GameQuery {
   /**
    * 캐릭터 목록 조회
    * @param gameId - 게임 ID
@@ -159,4 +159,4 @@ export class CharacterQuery extends GameQuery {
   }
 }
 
-export default new CharacterQuery();
+export default new HonkaiStarRailCharacterQuery();

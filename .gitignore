@@ -134,3 +134,9 @@ static
 *.log
 log/
 logs/
+
+# setJosn directory
+**/setJosn/
+
+# test-images directory
+**/test-images/

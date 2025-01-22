@@ -1,10 +1,10 @@
-import CharacterQuery from './CharacterQuery';
+import HonkaiStarRailCharacterQuery from './CharacterQuery';
 import GameQuery from '../AllGame/GameQuery';
 
 /**
  * 캐릭터 검색 관련 기능을 담당하는 클래스
  */
-class CharacterSearch {
+class HonkaiStarRailCharacterSearch {
   /**
    * 캐릭터 목록을 검색하고 반환하는 메서드
    * @param gameData 게임 정보 객체
@@ -15,7 +15,9 @@ class CharacterSearch {
     const typeList = await GameQuery.getTypeList(gameData.id);
 
     // 캐릭터 기본 정보 목록 조회
-    const characterList = await CharacterQuery.getCharacterList(gameData.id);
+    const characterList = await HonkaiStarRailCharacterQuery.getCharacterList(
+      gameData.id,
+    );
 
     // 각 캐릭터에 속성과 경로 정보를 매핑
     const mappedCharacters = characterList.map((character: any) => ({
@@ -46,14 +48,15 @@ class CharacterSearch {
    */
   async searchCharacterDetail(gameData: any, id: string) {
     // 캐릭터의 기본 정보 조회
-    const characterData = await CharacterQuery.getCharacterDetail(id);
+    const characterData =
+      await HonkaiStarRailCharacterQuery.getCharacterDetail(id);
     if (!characterData) {
       throw new Error('Character not found');
     }
 
     // 캐릭터의 추가 정보(속성, 경로, 스킬, 이미지) 병렬 조회
     const [elementType, pathType, skillData, images] =
-      await CharacterQuery.getCharacterAdditionalInfo(
+      await HonkaiStarRailCharacterQuery.getCharacterAdditionalInfo(
         characterData.element,
         characterData.path,
         id,
@@ -61,7 +64,9 @@ class CharacterSearch {
 
     // 캐릭터의 장착 아이템 정보 조회
     const [[cardItems, relicItems, accessoryItems]] = await Promise.all([
-      CharacterQuery.getCharacterItems(characterData.info?.itemData),
+      HonkaiStarRailCharacterQuery.getCharacterItems(
+        characterData.info?.itemData,
+      ),
     ]);
 
     // 응답 데이터 구성
@@ -91,5 +96,5 @@ class CharacterSearch {
 }
 
 // 싱글톤 인스턴스 생성 및 내보내기
-const characterSearch = new CharacterSearch();
-export default characterSearch;
+const honkaiStarRailCharacterSearch = new HonkaiStarRailCharacterSearch();
+export default honkaiStarRailCharacterSearch;
