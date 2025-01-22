@@ -8,6 +8,7 @@ import path from 'path';
 
 import { Character } from '../../models/character/CharacterDef.Vo';
 import { CharacterImage } from '../../models/character/CharacterImage.Vo';
+import puppeteer from 'puppeteer';
 
 // 데이터 베이스 값 참조
 
@@ -240,6 +241,118 @@ export class TestController {
     }
 
     res.status(200).json({});
+  }
+  /**
+   * 나무위키 본문 내용 추출 API
+   * 1. 나무위키 URL에서 HTML 가져오기
+   * 2. 본문 내용 파싱
+   * 3. 결과 반환
+   */
+  async getNamuWikiContent(req: any, res: any): Promise<void> {
+    try {
+      const url =
+        'https://namu.wiki/w/%EC%86%8C%EB%85%80%EC%A0%84%EC%84%A02:%20%EB%A7%9D%EB%AA%85/%EC%9D%B8%ED%98%95';
+
+      if (!url) {
+        return res.status(400).json({
+          resultCode: 400,
+          resultMsg: 'URL이 필요합니다',
+        });
+      }
+
+      // 시작 위치
+      // 브라우저 실행
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+
+      // 요청 차단 설정
+      await page.setRequestInterception(true);
+      page.on('request', (request) => {
+        if (['image', 'stylesheet', 'font'].includes(request.resourceType())) {
+          request.abort();
+        } else {
+          request.continue();
+        }
+      });
+
+      // 사용자 에이전트 설정
+      await page.setUserAgent(
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36',
+      );
+
+      // URL로 이동
+      await page.goto(url, { timeout: 100000 });
+
+      // 페이지 대기
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      // 본문 내용 추출
+      const references = await page.evaluate(() => {
+        const referenceElements = Array.from(
+          document.querySelectorAll('._77e71e6e419071cb32f095b2bee8b744'),
+        )
+          .map((tr) => {
+            const tds = tr.querySelectorAll('td');
+            if (tds.length >= 2) {
+              const imgElement = tds[0]?.querySelector('img[loading="lazy"]');
+              const titleElement = tds[0]?.querySelector('strong');
+              const divElement = tds[0]?.querySelector(
+                'div[style="margin-top:-1px;font-size:0.65em"]',
+              );
+
+              const linkElements = tds[1]?.querySelectorAll('a');
+              const links = Array.from(linkElements || [])
+                .map((link) => {
+                  const title = link.getAttribute('title');
+                  if (!title) return null;
+                  return {
+                    title: title,
+                    href: link.getAttribute('href') || '',
+                  };
+                })
+                .filter((link) => link !== null);
+
+              return {
+                title: {
+                  image: imgElement?.src || '',
+                  title: titleElement?.textContent?.trim() || '',
+                  subTitle: divElement?.textContent?.trim() || '',
+                },
+                links: links || '',
+                length: tds.length,
+              };
+            }
+            return null;
+          })
+          .filter((item) => item !== null);
+        return {
+          referenceElements,
+        };
+      });
+
+      // 브라우저 종료
+      await browser.close();
+      // 종료 위치
+
+      return res.status(200).json({
+        resultCode: 200,
+        resultMsg: 'SUCCESS',
+        data: references,
+      });
+    } catch (error) {
+      console.error('나무위키 파싱 에러:', error);
+      return res.status(500).json({
+        resultCode: 500,
+        resultMsg: '나무위키 파싱 중 오류가 발생했습니다',
+      });
+    }
+
+    // 나무위키 캐릭터 추출은 - Rikf+-xb _77e71e6e419071cb32f095b2bee8b744
+    // 나무위키 스킬 추출셋은 - Rikf+-xb _38f185c22e4e5a213c9fed06728e5821
+    // 나무위키 뉴럴 헬릭스 / 마인드 보강 추출 - Rikf+-xb _6803dcde6a09ae387f9994555e73dfd7
+    // 나무위키 뉴럴 헬릭스 추출 - Rikf+-xb _6803dcde6a09ae387f9994555e73dfd7
+    // 이러면 캐릭터는 얼추 끝
+
+    // 나무위키 무기 추출 필요 까지만 하는걸로
   }
 }
 
