@@ -1,6 +1,10 @@
 export const formatDateString = (dateStr: string): string => {
   try {
-    const date = new Date(dateStr);
+    let date: Date;
+
+    // 날짜 문자열에서 서수 표현(1st, 2nd, 3rd, th) 제거
+    const cleanDateStr = dateStr.replace(/(\d+)(st|nd|rd|th)/, '$1');
+    date = new Date(cleanDateStr);
 
     // 유효한 날짜인지 확인
     if (isNaN(date.getTime())) {

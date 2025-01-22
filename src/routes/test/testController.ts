@@ -3,7 +3,7 @@ import * as ApiUtils from '../../utils/apiUtils';
 import * as DateUtils from '../../utils/dateUtils';
 import * as ImageUtils from '../../utils/imageUtils';
 import * as StringUtils from '../../utils/stringUtils';
-import * as YoutubeUtils from '../../utils/youtubeUtils';
+import YoutubeUtils, { fetchAndDownloadVideo } from '../../utils/youtubeUtils';
 import path from 'path';
 
 import { Character } from '../../models/character/CharacterDef.Vo';
@@ -22,12 +22,13 @@ export class TestController {
       console.log('\n=== API Utils 테스트 ===');
       try {
         // 테스트용 API 엔드포인트
-        const testUrl = 'https://jsonplaceholder.typicode.com/todos/1';
+        const testUrl = 'https://api.hakush.in/hsr/data/character.json';
         const data = await ApiUtils.fetchData(testUrl);
         console.log('fetchData 결과:', data);
 
         // pageConfig 테스트는 실제 엔드포인트로 대체 필요
-        const pageConfig = await ApiUtils.fetchPageConfig(testUrl);
+        const testUrl2 = 'https://starrailstation.com/kr/characters';
+        const pageConfig = await ApiUtils.fetchPageConfig(testUrl2);
         console.log('fetchPageConfig 결과:', pageConfig);
       } catch (error) {
         console.error('API Utils 테스트 실패:', error);
@@ -74,7 +75,8 @@ export class TestController {
     async function testImageUtils() {
       console.log('\n=== Image Utils 테스트 ===');
       try {
-        const imageUrl = 'https://picsum.photos/200/300';
+        const imageUrl =
+          'https://cdn.starrailstation.com/assets/90860f74a8125312633b3adb2f21f1a7f56f717fecc5883c0c8bb65fa036bc71.webp';
         const directory = path.join(__dirname, '../../../test-images');
         const filename = 'test-image.jpg';
 
@@ -117,17 +119,12 @@ export class TestController {
     async function testYoutubeUtils() {
       console.log('\n=== YouTube Utils 테스트 ===');
       try {
-        const searchTerm = 'test video';
-        const result = await YoutubeUtils.youtubeVideo(searchTerm);
+        const searchTerm = '「천외 위성 통신」 | 망귀인';
+        const result = await fetchAndDownloadVideo(
+          searchTerm,
+          'https://www.youtube.com/@Honkaistarrail_kr',
+        );
         console.log('YouTube 검색 결과:', result);
-
-        // 실제 다운로드 테스트는 필요한 경우에만 수행
-        /*
-        const videoUrl = 'https://www.youtube.com/watch?v=example';
-        const outputPath = path.join(__dirname, '../../../test-videos/test.mp4');
-        await YoutubeUtils.downloadVideo(videoUrl, outputPath);
-        console.log(`비디오 다운로드 완료: ${outputPath}`);
-        */
       } catch (error) {
         console.error('YouTube Utils 테스트 실패:', error);
       }
@@ -135,7 +132,7 @@ export class TestController {
 
     // 모든 테스트 실행
     try {
-      await testApiUtils();
+      //await testApiUtils();
       testDateUtils();
       await testImageUtils();
       testStringUtils();

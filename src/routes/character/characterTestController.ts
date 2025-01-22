@@ -1,3 +1,4 @@
+// 필수 모듈 임포트
 import path from 'path';
 import { QueryTypes, where, Op, Sequelize } from 'sequelize';
 
@@ -18,18 +19,17 @@ import {
 import { formatDateString } from '../../utils/dateUtils';
 import { downloadImage } from '../../utils/imageUtils';
 import { fetchData, fetchPageConfig } from '../../utils/apiUtils';
-import { downloadVideo, youtubeVideo } from '../../utils/youtubeUtils';
+import { fetchAndDownloadVideo } from '../../utils/youtubeUtils';
 
 // 테스트 데이터 임포트
-import hakushCharacter from './test/c1.json';
-import starrailstationCharacter from './test/c2.json';
-import prydwenData from './test/c3.json';
-import starrailstationCharacterInfo from './test/citem.json';
-import hakushCharacterInfo from './test/citem2.json';
 import tmpitem from './test/itemt.json';
-
 import sequelize from '../../models';
 
+/**
+ * 캐릭터 스탯 증가값을 추출하는 함수
+ * @param data 캐릭터 스탯 데이터
+ * @returns 증가값이 포함된 객체
+ */
 const extractAddValues = (data: any) => {
   const result = {};
 
@@ -46,13 +46,21 @@ const extractAddValues = (data: any) => {
   return result;
 };
 
+/**
+ * 캐릭터 데이터 관리 컨트롤러 클래스
+ */
 export class CharacterTestController {
+  /**
+   * 캐릭터 데이터 설정 메서드
+   * @param req 요청 객체
+   * @param res 응답 객체
+   */
   async CharacterSet(req: any, res: any): Promise<void> {
     console.log('----------------------------------');
     console.log('캐릭터 삽입 - 붕괴 스타레일');
     console.log('----------------------------------');
 
-    // 데이터 가져오기
+    // 외부 API에서 캐릭터 데이터 가져오기
     const hakushCharacter = await fetchData(
       'https://api.hakush.in/hsr/data/character.json',
     );
@@ -66,7 +74,7 @@ export class CharacterTestController {
     const starrailstationCharacter = starrailstationData.entries;
     const prydwenCharacter = prydwenData.data.allContentfulHsrCharacter.nodes;
 
-    // 데이터 로깅
+    // 데이터 수량 로깅
     console.log('hakushCharacter:', Object.keys(hakushCharacter).length);
     console.log(
       'starrailstationCharacter:',
@@ -75,24 +83,21 @@ export class CharacterTestController {
     console.log('prydwenCharacter:', Object.keys(prydwenCharacter).length);
     console.log('----------------------------------');
 
-    // 타입 데이터 가져오기
+    // 게임 내 타입 데이터 조회
     const TypeList = await TypeDef.findAll({
       where: { gameId: 1 },
       raw: true,
     });
 
-    let setCharacterList = [];
-    let setCharacterInfoList = [];
-    let setCharacterImageList = [];
-    let setCharacterSkill = [];
-
-    // 캐릭터 처리
+    // 캐릭터 데이터 처리
     for (const key in hakushCharacter) {
       const hakushItem: any = hakushCharacter[key];
       let ChkName = hakushItem.kr === '{NICKNAME}' ? '개척자' : hakushItem.kr;
       let ChkEnName = '';
 
-      // starrailstation 데이터 처리
+      console.log('name:', hakushItem.kr);
+
+      // starrailstation 데이터 매칭
       const starrailstationItem: any = starrailstationCharacter.find(
         (fitem) => fitem.pageId === hakushItem.icon,
       );
@@ -102,7 +107,7 @@ export class CharacterTestController {
         continue;
       }
 
-      // 데미지 타입 처리
+      // 캐릭터 타입 정보 매칭
       const damageTypeItem: any = TypeList.find(
         (fitem: any) => fitem.name.ko === starrailstationItem?.damageType.name,
       );
@@ -110,7 +115,7 @@ export class CharacterTestController {
         (fitem: any) => fitem.name.ko === starrailstationItem?.baseType.name,
       );
 
-      // prydwen 데이터 처리
+      // 개척자 캐릭터 영문명 특수 처리
       ChkEnName = hakushItem.en;
       if (damageTypeItem.id && hakushItem.kr === '{NICKNAME}') {
         switch (damageTypeItem.id) {
@@ -131,7 +136,13 @@ export class CharacterTestController {
             break;
         }
       }
+      if (ChkEnName == 'Fugue') {
+        ChkEnName = 'Tingyun • Fugue';
+      }
 
+      console.log('ENname:', ChkEnName);
+
+      // prydwen 데이터 매칭
       const prydwenItem: any = prydwenCharacter.find(
         (fitem) => fitem.name === ChkEnName,
       );
@@ -141,7 +152,7 @@ export class CharacterTestController {
         continue;
       }
 
-      // 캐릭터 존재 여부 확인
+      // 캐릭터 중복 체크
       const searchCharacter: any = await Character.findOne({
         where: {
           'name.kr': ChkName,
@@ -151,14 +162,12 @@ export class CharacterTestController {
         raw: true,
       });
 
-      console.log('name:', hakushItem.kr + '/' + ChkEnName);
-
       if (searchCharacter?.id) {
         console.log('이미 데이터 베이스에 있는것으로 확인 됩니다.');
         continue;
       }
 
-      // 추가 데이터 가져오기
+      // 추가 캐릭터 정보 가져오기
       const starrailstationCharacterInfo = await fetchPageConfig(
         'https://starrailstation.com/kr/character/' +
           starrailstationItem.pageId,
@@ -197,22 +206,26 @@ export class CharacterTestController {
         },
       };
 
-      // 특수 케이스 처리
+      // 개척자 이름 특수 처리
       if (hakushItem.kr === '{NICKNAME}') {
         setCharacterBase.name.kr = ChkName;
         setCharacterBase.name.en = ChkEnName;
       }
 
+      // 신규/출시 상태 설정
       setCharacterBase.isNew = prydwenhCharacterInfo?.isNew ? 1 : 0;
       setCharacterBase.isReleased = prydwenhCharacterInfo?.isReleased ? 1 : 0;
 
+      // 출시일 설정
       if (prydwenhCharacterInfo?.releaseDate) {
+        console.log(prydwenhCharacterInfo?.releaseDate);
+
         setCharacterBase.releaseDate = formatDateString(
           prydwenhCharacterInfo.releaseDate,
         );
       }
 
-      // 중복 체크
+      // 최종 중복 체크
       const search2Character: any = await Character.findOne({
         where: {
           'name.kr': setCharacterBase.name.kr,
@@ -227,15 +240,16 @@ export class CharacterTestController {
         continue;
       }
 
-      // 캐릭터 세부 정보 처리
+      // 캐릭터 스탯 정보 처리
       const statsAddVal = extractAddValues(hakushCharacterInfo.Stats);
       let statsBaseVal = [];
       let stataPromotion = 0;
 
-      // 레벨업 스테이터스 처리
+      // 레벨업 스탯 처리
       for (const item of Object.values(hakushCharacterInfo.Stats)) {
         let costList = [];
 
+        // 비용 아이템 처리
         for (const costitem of Object.values(item?.Cost)) {
           const itemSearchData = await Item.findAll({
             attributes: ['id'],
@@ -254,6 +268,7 @@ export class CharacterTestController {
           });
         }
 
+        // 기본 스탯 설정
         statsBaseVal.push({
           attackBase: item.AttackBase,
           defenseBase: item.DefenceBase,
@@ -270,7 +285,7 @@ export class CharacterTestController {
         stataPromotion++;
       }
 
-      // 장신구 처리
+      // 장비 아이템 리스트 초기화
       let setRelicsList = [];
       let setAccessories = [];
       let setCard = [];
@@ -300,7 +315,7 @@ export class CharacterTestController {
         setAccessories.push(itemSearchData[0].id);
       }
 
-      // 카드 정보 처리
+      // 광추 카드 처리
       if (prydwenhCharacterInfo.conesNew) {
         for (const item of Object.values(prydwenhCharacterInfo.conesNew)) {
           const normalizedSearchTerm = replaceHyphensAndCapitalize(
@@ -317,40 +332,29 @@ export class CharacterTestController {
         }
       }
 
-      // 이미지 처리
+      // 이미지 저장 경로 설정
       const saveDirectory = path.join(
         __dirname,
         '../../../static/image/character/',
       );
 
-      // 카드 이미지
+      // 카드 이미지 다운로드
       const cardImageVal = starrailstationItem?.iconPath;
       const cardImageUrl =
         'https://cdn.starrailstation.com/assets/' + cardImageVal + '.webp';
       await downloadImage(cardImageUrl, saveDirectory, cardImageVal + '.webp');
 
-      // 메인 이미지
+      // 메인 이미지 다운로드
       const artImageVal = starrailstationCharacterInfo?.artPath;
       const artImageUrl =
         'https://cdn.starrailstation.com/assets/' + artImageVal + '.webp';
       await downloadImage(artImageUrl, saveDirectory, artImageVal + '.webp');
 
-      // 캐릭터 생성
+      // 캐릭터 기본 정보 생성
       const createCharacterBase = await Character.create(setCharacterBase);
 
       if (createCharacterBase.id) {
-        // 유튜브 처리
-        const characterYoutube = await youtubeVideo(hakushItem.kr);
-        if (characterYoutube) {
-          await CharacterImage.create({
-            characterId: createCharacterBase.id,
-            backgroundColor: '#ffffff',
-            layout: 'video',
-            url: 'assets/video/' + characterYoutube,
-          });
-        }
-
-        // 캐릭터 세부 정보 생성
+        // 캐릭터 상세 정보 생성
         const setCharacterInfoBase = {
           characterId: createCharacterBase.id,
           lang: 'kr',
@@ -369,7 +373,7 @@ export class CharacterTestController {
 
         await CharacterInfo.create(setCharacterInfoBase);
 
-        // 이미지 정보 생성
+        // 캐릭터 이미지 정보 생성
         await CharacterImage.create({
           characterId: createCharacterBase.id,
           backgroundColor: '#ffffff',
@@ -384,15 +388,17 @@ export class CharacterTestController {
           url: 'assets/image/character/' + artImageVal,
         });
 
-        // 스킬 처리
+        // 스킬 정보 처리
         let SkillsList = [];
 
         for (const item of Object.values(starrailstationCharacterInfo.skills)) {
           let levelDataList = [];
 
+          // 스킬 레벨 데이터 처리
           for (const levelitem of Object.values(item.levelData)) {
             let costList = [];
 
+            // 스킬 비용 처리
             if (levelitem.cost.length !== 0) {
               for (const skillcostitem of Object.values(levelitem?.cost)) {
                 const searchItem: any = tmpitem.find(
@@ -420,6 +426,7 @@ export class CharacterTestController {
             levelDataList.push(levelitem);
           }
 
+          // 스킬 기본 정보 설정
           const setSkillBase = {
             gameId: 1,
             characterId: createCharacterBase.id,
@@ -438,6 +445,7 @@ export class CharacterTestController {
             levelData: item.levelData,
           };
 
+          // 스킬 생성
           const createSkill = await Skill.create(setSkillBase);
 
           // 스킬 이미지 처리
@@ -455,24 +463,41 @@ export class CharacterTestController {
             skillImageVal + '.webp',
           );
 
+          // 스킬 이미지 정보 생성
           if (createSkill.id) {
             await SkillImage.create({
               skillId: createSkill.id,
               backgroundColor: '#ffffff',
               layout: '',
-              url: 'assets/image/character/' + skillImageVal,
+              url: 'assets/image/skill/' + skillImageVal,
             });
           }
 
           SkillsList.push(setSkillBase);
         }
 
+        // 유튜브 영상 처리
+        const searchTerm = `「천외 위성 통신」 | ${hakushItem.kr}`;
+        const characterYoutube = await fetchAndDownloadVideo(
+          searchTerm,
+          'https://www.youtube.com/@Honkaistarrail_kr',
+        );
+        if (characterYoutube) {
+          await CharacterImage.create({
+            characterId: createCharacterBase.id,
+            backgroundColor: '#ffffff',
+            layout: 'video',
+            url: 'assets/video/' + characterYoutube,
+          });
+        }
+
         console.log('캐릭터 생성 완료 - ' + createCharacterBase.id);
       }
 
-      console.log('----------------');
+      console.log('----------------------------------------');
     }
 
+    // 응답 반환
     res.status(200).json({
       message: '캐릭터 생성 완료',
     });

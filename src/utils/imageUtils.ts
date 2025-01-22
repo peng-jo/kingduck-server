@@ -8,6 +8,7 @@ export const downloadImage = async (
   filename: string,
 ): Promise<void> => {
   try {
+    console.log('이미지 다운로드 시작:' + filename);
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     if (!fs.existsSync(directory)) {
       fs.mkdirSync(directory, { recursive: true });

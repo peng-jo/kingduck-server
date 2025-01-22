@@ -1,5 +1,4 @@
 import express from 'express';
-import CharacterQuery from '../../manager/HonkaiStarRail/CharacterQuery';
 import GameQuery from '../../manager/AllGame/GameQuery';
 import CharacterSearch from '../../manager/HonkaiStarRail/CharacterSearch';
 
