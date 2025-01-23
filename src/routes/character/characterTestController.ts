@@ -1,4 +1,5 @@
 import HonkaiStarRailCharacterCreate from '../../manager/HonkaiStarRail/CharacterCreate';
+import GirlsFrontline2CharacterCreate from '../../manager/GirlsFrontline2/CharacterCreate';
 
 /**
  * 캐릭터 데이터 테스트 컨트롤러 클래스
@@ -9,9 +10,23 @@ export class CharacterTestController {
    * @param req 요청 객체
    * @param res 응답 객체
    */
-  async CharacterSet(req: any, res: any): Promise<void> {
+  async HonkaiStarRailCharacterSet(req: any, res: any): Promise<void> {
     // 자동으로 참조한 곳의 json 데이터를 저장 하게 설계 함
     const result = await HonkaiStarRailCharacterCreate.CharacterSet();
+    if (!result) {
+      return res.status(200).json({
+        resultCode: 400,
+        resultMsg: 'GAME NOT FOUND',
+      });
+    }
+
+    return res.status(200).json({
+      resultCode: 200,
+      resultMsg: '생성 완료',
+    });
+  }
+  async GirlsFrontline2CharacterSet(req: any, res: any): Promise<void> {
+    const result = await GirlsFrontline2CharacterCreate.CharacterSet();
     if (!result) {
       return res.status(200).json({
         resultCode: 400,

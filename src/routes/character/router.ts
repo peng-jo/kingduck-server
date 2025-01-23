@@ -10,7 +10,14 @@ const router = express.Router();
 //router.use(cors(corsOpt));
 
 // 테스트용
-router.get('/test/setData', CharacterTestController.CharacterSet);
+router.get(
+  '/HonkaiStarRail/setData',
+  CharacterTestController.HonkaiStarRailCharacterSet,
+);
+router.get(
+  '/GirlsFrontline2/setData',
+  CharacterTestController.GirlsFrontline2CharacterSet,
+);
 
 // 요청 method 별로 라우팅
 router.get('/:slug', characterController.getCharacterList); // 전체 리스트 조회
