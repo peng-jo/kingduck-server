@@ -55,3 +55,12 @@ Game.init(
     paranoid: true, // deleted_at 컬럼 생성, soft delete 시 나중에 복구 가능
   },
 );
+
+import { GameImage } from './GameImage.Vo';
+Game.hasMany(GameImage, {
+  foreignKey: 'gameId',
+  as: 'images',
+  constraints: false,
+});
+
+export default Game;

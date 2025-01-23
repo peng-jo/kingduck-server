@@ -3,6 +3,7 @@ import fs from 'fs';
 import { Game } from '../../models/game/GameDef.Vo';
 import sequelize from '../../models';
 import { QueryTypes } from 'sequelize';
+import { GameImage } from '../../models/game/GameImage.Vo';
 
 /**
  * 게임 관련 컨트롤러
@@ -15,11 +16,15 @@ export class GameController {
    * @param res Express Response 객체
    */
   async getGameList(req: any, res: any): Promise<void> {
-    console.log('----------------------------------');
-    console.log('게임 리스트 조회');
-    console.log('----------------------------------');
-
-    const gameList: any = await Game.findAll();
+    const gameList: any = await Game.findAll({
+      include: [
+        {
+          model: GameImage,
+          as: 'images',
+          attributes: ['url'],
+        },
+      ],
+    });
 
     if (gameList) {
       res.status(200).json({
@@ -51,8 +56,15 @@ export class GameController {
     try {
       const gameData: any = await Game.findOne({
         where: {
-          'title.en': slug,
+          'title.slug': slug,
         },
+        include: [
+          {
+            model: GameImage,
+            as: 'images',
+            attributes: ['url'],
+          },
+        ],
       });
 
       if (gameData) {

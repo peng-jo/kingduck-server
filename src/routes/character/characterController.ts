@@ -16,6 +16,7 @@ export class CharacterController {
     // 1. 게임 정보 조회
     const gameData = await GameQuery.getGameInfo(slug);
 
+    // 1-1. 게임 정보 없으면 오류 반환
     if (!gameData) {
       return res.status(200).json({
         resultCode: 400,
@@ -23,6 +24,7 @@ export class CharacterController {
       });
     }
 
+    // 2. 캐릭터 목록 조회
     const result =
       await HonkaiStarRailCharacterSearch.searchCharacterList(gameData);
 
@@ -43,6 +45,7 @@ export class CharacterController {
     // 1. 게임 정보 조회
     const gameData = await GameQuery.getGameInfo(slug);
 
+    // 1-1. 게임 정보 없으면 오류 반환
     if (!gameData) {
       return res.status(200).json({
         resultCode: 400,
@@ -50,6 +53,7 @@ export class CharacterController {
       });
     }
 
+    // 2. 캐릭터 목록 조회
     const result = await HonkaiStarRailCharacterSearch.searchCharacterDetail(
       gameData,
       id,

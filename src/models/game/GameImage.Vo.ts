@@ -70,3 +70,12 @@ GameImage.init(
     paranoid: true, // deleted_at 컬럼 생성, soft delete 시 나중에 복구 가능
   },
 );
+
+import { Game } from './GameDef.Vo';
+GameImage.belongsTo(Game, {
+  foreignKey: 'gameId',
+  as: 'game',
+  constraints: false,
+});
+
+export default GameImage;

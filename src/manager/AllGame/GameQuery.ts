@@ -52,7 +52,7 @@ export class GameQuery {
    */
   async getGameInfo(slug: string) {
     return await Game.findOne({
-      where: { 'title.en': slug },
+      where: { 'title.slug': slug },
       raw: true,
       nest: true,
     });
