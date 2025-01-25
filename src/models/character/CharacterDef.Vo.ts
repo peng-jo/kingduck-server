@@ -8,9 +8,8 @@ interface CharacterAttributes {
   isNew?: boolean;
   isReleased?: boolean;
   name: any;
-  element?: string;
-  path?: string;
   rarity?: string;
+  type?: any;
   voiceActors?: any;
   releaseDate?: Date;
   deletedAt?: Date;
@@ -25,9 +24,8 @@ export class Character extends Model<CharacterAttributes> {
   isNew!: boolean;
   isReleased!: boolean;
   name!: any;
-  element!: string;
-  path!: string;
   rarity!: string;
+  type!: any;
   voiceActors!: any;
   releaseDate!: Date;
   deletedAt?: Date;
@@ -66,18 +64,13 @@ Character.init(
       type: DataTypes.JSONB,
       allowNull: false,
     },
-    element: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: null,
-    },
-    path: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: null,
-    },
     rarity: {
       type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null,
+    },
+    type: {
+      type: DataTypes.JSONB,
       allowNull: true,
       defaultValue: null,
     },

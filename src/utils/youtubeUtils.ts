@@ -141,8 +141,6 @@ class YoutubeUtils {
       const youtubeTitle = videoData.title.runs[0].text;
       const youtubeVideoId = videoData.videoId;
 
-      console.log(youtubeTitle);
-
       // 제목 일치 여부 확인 후 다운로드
       if (youtubeTitle.includes(title)) {
         console.log(`검색 성공: "${title}" 동영상을 찾았습니다.`);

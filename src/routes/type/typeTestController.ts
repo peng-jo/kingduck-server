@@ -4,10 +4,10 @@ import fs from 'fs';
 import { TypeDef } from '../../models/type/TypeDef.Vo';
 import { TypeImage } from '../../models/type/TypeImage.Vo';
 
-export class ItemTestController {
+export class TypeTestController {
   // 아이템 넣기 - json 데이터 형태
   // 붕괴 스타레일 유효
-  async typeSet(req: any, res: any): Promise<void> {
+  async testTypeSet(req: any, res: any): Promise<void> {
     const data: any = testType;
     const uniqueTypes: any = {};
     let setTypesItem = [];

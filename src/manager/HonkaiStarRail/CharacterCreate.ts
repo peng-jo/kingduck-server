@@ -205,8 +205,8 @@ export class HonkaiStarRailCharacterCreate {
       const searchCharacter: any = await Character.findOne({
         where: {
           'name.kr': ChkName,
-          element: String(damageTypeItem?.id),
-          path: String(baseTypeItem?.id),
+          'type.element': String(damageTypeItem?.id),
+          'type.path': String(baseTypeItem?.id),
         },
         raw: true,
       });
@@ -244,8 +244,10 @@ export class HonkaiStarRailCharacterCreate {
           jp: hakushItem.jp,
           cn: hakushItem.cn,
         },
-        element: damageTypeItem?.id,
-        path: baseTypeItem?.id,
+        type: {
+          element: damageTypeItem?.id,
+          path: baseTypeItem?.id,
+        },
         rarity: starrailstationItem?.rarity,
         voiceActors: {
           en: starrailstationCharacterInfo.archive.cvEn,
@@ -278,8 +280,8 @@ export class HonkaiStarRailCharacterCreate {
       const search2Character: any = await Character.findOne({
         where: {
           'name.kr': setCharacterBase.name.kr,
-          element: String(damageTypeItem?.id),
-          path: String(baseTypeItem?.id),
+          'type.element': String(damageTypeItem?.id),
+          'type.path': String(baseTypeItem?.id),
         },
         raw: true,
       });

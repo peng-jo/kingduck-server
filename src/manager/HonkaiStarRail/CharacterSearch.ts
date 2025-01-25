@@ -23,13 +23,16 @@ class HonkaiStarRailCharacterSearch {
     const mappedCharacters = characterList.map((character: any) => ({
       ...character,
       // 캐릭터의 속성(element) 정보 매핑
-      element: typeList.find(
-        (type) => Number(type.id) === Number(character?.element),
-      ),
-      // 캐릭터의 경로(path) 정보 매핑
-      path: typeList.find(
-        (type) => Number(type.id) === Number(character?.path),
-      ),
+      type: {
+        element: typeList.find(
+          (typeItem: any) =>
+            Number(typeItem.id) === Number(character.type.element),
+        ),
+        path: typeList.find(
+          (typeItem: any) =>
+            Number(typeItem.id) === Number(character.type.path),
+        ),
+      },
     }));
 
     // 결과 반환
@@ -57,8 +60,8 @@ class HonkaiStarRailCharacterSearch {
     // 캐릭터의 추가 정보(속성, 경로, 스킬, 이미지) 병렬 조회
     const [elementType, pathType, skillData, images] =
       await HonkaiStarRailCharacterQuery.getCharacterAdditionalInfo(
-        characterData.element,
-        characterData.path,
+        characterData.type?.element,
+        characterData.type?.path,
         id,
       );
 
@@ -72,8 +75,10 @@ class HonkaiStarRailCharacterSearch {
     // 응답 데이터 구성
     const responseData = {
       ...characterData,
-      element: elementType,
-      path: pathType,
+      type: {
+        element: elementType,
+        path: pathType,
+      },
       info: {
         ...characterData.info,
         itemData: {

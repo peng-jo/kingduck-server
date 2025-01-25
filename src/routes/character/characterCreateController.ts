@@ -27,7 +27,10 @@ export class characterCreateController {
   }
   async GirlsFrontline2CharacterSet(req: any, res: any): Promise<void> {
     const result: any = await GirlsFrontline2CharacterCreate.CharacterSet();
-    if (!result) {
+
+    console.log(result);
+
+    if (!result?.resultCode) {
       return res.status(200).json({
         resultCode: 400,
         resultMsg: 'GAME NOT FOUND',
@@ -37,6 +40,7 @@ export class characterCreateController {
     return res.status(200).json({
       resultCode: 200,
       resultMsg: '생성 완료',
+      resultData: result,
     });
   }
 }

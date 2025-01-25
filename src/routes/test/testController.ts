@@ -6,6 +6,7 @@ import * as ImageUtils from '../../utils/imageUtils';
 import * as StringUtils from '../../utils/stringUtils';
 import YoutubeUtils, { fetchAndDownloadVideo } from '../../utils/youtubeUtils';
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 import { Character } from '../../models/character/CharacterDef.Vo';
 import { CharacterImage } from '../../models/character/CharacterImage.Vo';
@@ -175,6 +176,8 @@ async function GirlsFrontline2CharacterInfoSearch(page: any) {
                   ?.replace(strongElement.textContent || '', '')
                   .trim() || '';
             }
+            const imageElement = tr.querySelector('td.J0-mIdx0 img._66lDSM6b');
+            const imageSrc = imageElement?.src || '';
 
             // 레어도 정보 추출
             const tds = Array.from(
@@ -197,6 +200,7 @@ async function GirlsFrontline2CharacterInfoSearch(page: any) {
                 kr: nameKr,
                 en: nameEn,
               },
+              image: imageSrc,
               rarity: rarityData,
               affiliation: affiliation,
               type: type,
@@ -509,7 +513,6 @@ export class TestController {
       res.status(500).json({ error: '테스트 실행 중 오류 발생' });
     }
   }
-
   // 유튜브 크롤링 후 영상 다운로드 처리 구현
   // 파이썬 3.7 이상 설치 필요
   // 파이썬 전역 변수가 잘 되어있는지 확인 필요
@@ -524,7 +527,7 @@ export class TestController {
     if (CharacterData) {
       // 타입이 string로 처리 되어있어 ( 추후 복수의 속성 값이 있을수 있다는 판단으로 )
       for (const item of Object.values(CharacterData)) {
-        console.log('item.name.kr:' + item.name.kr);
+        console.log('name.kr:' + item.name.kr);
 
         /*
         let youtubeVideoData = await youtubeVideo(item.name.kr);
@@ -568,14 +571,6 @@ export class TestController {
           {
             namd: '제이드',
             youtubeid: 'u0mso6UK29s',
-          },
-          {
-            namd: '라파',
-            youtubeid: 'gvCoIwJwq4E',
-          },
-          {
-            namd: '더 헤르타',
-            youtubeid: '8Uz4iwWSjCQ',
           },
         ];
 

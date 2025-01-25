@@ -1,6 +1,7 @@
 import express from 'express';
 import GameQuery from '../../manager/AllGame/GameQuery';
 import HonkaiStarRailCharacterSearch from '../../manager/HonkaiStarRail/CharacterSearch';
+import GirlsFrontline2CharacterSearch from '../../manager/GirlsFrontline2/CharacterSearch';
 
 export class CharacterController {
   /**
@@ -24,9 +25,16 @@ export class CharacterController {
       });
     }
 
+    let result;
     // 2. 캐릭터 목록 조회
-    const result =
-      await HonkaiStarRailCharacterSearch.searchCharacterList(gameData);
+    if (gameData.id == 1) {
+      // 2. 캐릭터 목록 조회
+      result =
+        await HonkaiStarRailCharacterSearch.searchCharacterList(gameData);
+    } else if (gameData.id == 2) {
+      result =
+        await GirlsFrontline2CharacterSearch.searchCharacterList(gameData);
+    }
 
     return res.status(200).json(result);
   }
@@ -53,11 +61,20 @@ export class CharacterController {
       });
     }
 
+    let result;
     // 2. 캐릭터 목록 조회
-    const result = await HonkaiStarRailCharacterSearch.searchCharacterDetail(
-      gameData,
-      id,
-    );
+    if (gameData.id == 1) {
+      result = await HonkaiStarRailCharacterSearch.searchCharacterDetail(
+        gameData,
+        id,
+      );
+    } else if (gameData.id == 2) {
+      result = await GirlsFrontline2CharacterSearch.searchCharacterDetail(
+        gameData,
+        id,
+      );
+    }
+    console.log(result);
     return res.status(200).json(result);
   }
 }

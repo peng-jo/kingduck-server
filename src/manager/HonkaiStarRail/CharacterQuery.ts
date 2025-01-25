@@ -28,15 +28,7 @@ export class HonkaiStarRailCharacterQuery extends GameQuery {
           attributes: ['url', 'layout'],
         },
       ],
-      attributes: [
-        'isNew',
-        'isReleased',
-        'name',
-        'rarity',
-        'path',
-        'element',
-        'id',
-      ],
+      attributes: ['isNew', 'isReleased', 'name', 'rarity', 'id', 'type'],
       order: [
         ['rarity', 'DESC'],
         ['releaseDate', 'DESC'],
