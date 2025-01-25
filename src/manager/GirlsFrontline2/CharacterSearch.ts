@@ -1,5 +1,6 @@
 import GirlsFrontline2CharacterQuery from './CharacterQuery';
 import GameQuery from '../AllGame/GameQuery';
+import HonkaiStarRailCharacterQuery from '../HonkaiStarRail/CharacterQuery';
 
 /**
  * 캐릭터 검색 관련 기능을 담당하는 클래스
@@ -44,8 +45,59 @@ class GirlsFrontline2CharacterSearch {
     };
   }
   async searchCharacterDetail(gameData: any, id: any) {
-    return null;
+    console.log(id);
+
+    // 캐릭터의 기본 정보 조회
+    const characterData =
+      await GirlsFrontline2CharacterQuery.getCharacterDetail(id);
+    if (!characterData) {
+      throw new Error('Character not found');
+    }
+
+    // 캐릭터의 추가 정보(속성, 경로, 스킬, 이미지) 병렬 조회
+    const [elementType, weaponType, corpType, skillData, images] =
+      await GirlsFrontline2CharacterQuery.getCharacterAdditionalInfo(
+        characterData.type?.element,
+        characterData.type?.weapon,
+        characterData.type?.corp,
+        id,
+      );
+
+    // 캐릭터의 장착 아이템 정보 조회
+    const [[weaponItems]] = await Promise.all([
+      GirlsFrontline2CharacterQuery.getCharacterItems(
+        characterData.info?.itemData,
+      ),
+    ]);
+
+    console.log(characterData);
+
+    // 응답 데이터 구성
+    const responseData = {
+      ...characterData,
+      type: {
+        element: elementType,
+        weapon: weaponType,
+        corp: corpType,
+      },
+      info: {
+        ...characterData.info,
+        itemData: {
+          weapon: weaponItems,
+        },
+      },
+      images,
+      skill: skillData,
+    };
+
+    // 결과 반환
+    return {
+      resultCode: 200,
+      items: responseData,
+      resultMsg: 'SUCCESS',
+    };
   }
+
   // 나무위키 소녀전선2 캐릭터 리스트 처리
   async ListNamuWikiSearch(page: any) {
     try {

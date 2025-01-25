@@ -72,6 +72,8 @@ class HonkaiStarRailCharacterSearch {
       ),
     ]);
 
+    console.log(characterData);
+
     // 응답 데이터 구성
     const responseData = {
       ...characterData,

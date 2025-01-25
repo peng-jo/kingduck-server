@@ -612,7 +612,7 @@ export class GirlsFrontline2CharacterCreate {
                 type: '',
                 levelReq: 0,
                 promotionReq: 0,
-                levelData: skill.detail.contentData,
+                rangeData: skill.detail.contentData,
               };
 
               // 스킬 생성

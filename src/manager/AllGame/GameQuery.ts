@@ -44,6 +44,38 @@ export class GameQuery {
 
     return itemSearchArr;
   }
+  async itemNameForSearch(data: any) {
+    if (!data || !Array.isArray(data)) {
+      return [];
+    }
+
+    const itemSearchArr = [];
+    for (const itemId of data) {
+      if (!itemId) continue;
+
+      const itemData = await Item.findOne({
+        where: { 'itemReferences.weapon': Number(itemId) },
+        attributes: [
+          'itemtype',
+          'name',
+          'desc',
+          'path',
+          'rarity',
+          'levelData',
+          'itemReferences',
+          'skillId',
+        ],
+        order: [['rarity', 'DESC']],
+        raw: true,
+      });
+
+      if (itemData) {
+        itemSearchArr.push(itemData);
+      }
+    }
+
+    return itemSearchArr;
+  }
 
   /**
    * 게임 정보 조회
