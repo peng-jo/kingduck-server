@@ -2,6 +2,7 @@
 import path from 'path';
 import fs from 'fs';
 import { Op } from 'sequelize';
+import { v4 as uuidv4 } from 'uuid';
 
 // 데이터베이스 모델 임포트
 import { Character } from '../../models/character/CharacterDef.Vo';
@@ -84,7 +85,7 @@ const saveDataToFile = (
 };
 
 export class HonkaiStarRailCharacterCreate {
-  async CharacterSet(): Promise<void> {
+  async CharacterSet(): Promise<any> {
     console.log('----------------------------------');
     console.log('캐릭터 삽입 - 붕괴 스타레일');
     console.log('----------------------------------');
@@ -340,6 +341,9 @@ export class HonkaiStarRailCharacterCreate {
       let setRelicsList = [];
       let setAccessories = [];
       let setCard = [];
+      let setGacha = [];
+      let setMainPropertyList = [];
+      let setSubPropertyList = [];
 
       // 터널 유물 처리
       for (const item of Object.values(hakushCharacterInfo.Relics.Set4IDList)) {
@@ -383,10 +387,93 @@ export class HonkaiStarRailCharacterCreate {
         }
       }
 
+      // 주 속성 처리
+      if (hakushCharacterInfo.Relics.PropertyList) {
+        for (const item of Object.values(
+          hakushCharacterInfo.Relics.PropertyList,
+        )) {
+          let setOpt = {
+            relicType: item.RelicType,
+            property: item.PropertyType,
+          };
+          setMainPropertyList.push(setOpt);
+        }
+      }
+
+      // 부 속성 처리
+      if (hakushCharacterInfo.Relics.SubAffixPropertyList) {
+        for (const item of Object.values(
+          hakushCharacterInfo.Relics.SubAffixPropertyList,
+        )) {
+          setSubPropertyList.push(item);
+        }
+      }
+
+      // 가챠 처리
+      if (starrailstationCharacterInfo.ranks) {
+        for (const item of Object.values(starrailstationCharacterInfo.ranks)) {
+          if (!item) {
+            continue;
+          }
+          // 이미지 저장 경로 설정
+          const saveDirectory = path.join(
+            __dirname,
+            '../../../static/image/HonkaiStarRail/ranks/',
+          );
+          // 카드 이미지 다운로드
+          const imageVal = item?.artPath;
+          const imageUrl =
+            'https://cdn.starrailstation.com/assets/' + imageVal + '.webp';
+          await downloadImage(imageUrl, saveDirectory, imageVal + '.webp');
+          const imageDir =
+            'assets/image/HonkaiStarRail/ranks/' + imageVal + '.webp';
+          // 키 정보 객체 생성
+          const SetInfo = {
+            id: item.id,
+            title: item.name,
+            image: imageDir,
+            description: item.descHash,
+            params: item.params,
+          };
+          setGacha.push(SetInfo);
+        }
+      } else if (hakushCharacterInfo.Ranks) {
+        for (const item of Object.values(hakushCharacterInfo.Ranks)) {
+          if (!item) {
+            console.log('공백으로 건너뜀');
+            continue;
+          }
+          // 이미지 파일명 생성
+          const imageName = uuidv4().replace(/-/g, '');
+          let itemId = item?.Id;
+          const processedItemId = String(itemId).replace(/"/g, '');
+          let imageUrlPath = processedItemId.replace(key, '').substring(1);
+          const imageUrl = `https://api.hakush.in/hsr/UI/rank/_dependencies/textures/${key}/${key}_Rank_${imageUrlPath}.webp`;
+          // 이미지 저장 경로 설정
+          const saveDirectory = path.join(
+            __dirname,
+            '../../../static/image/HonkaiStarRail/ranks/',
+          );
+          // 카드 이미지 다운로드
+          await downloadImage(imageUrl, saveDirectory, imageName + '.webp');
+          const imageDir =
+            'assets/image/HonkaiStarRail/ranks/' + imageName + '.webp';
+          // 키 정보 객체 생성
+          const SetInfo = {
+            id: item.Id,
+            title: item.Name,
+            image: imageDir,
+            description: item.Desc,
+            params: item.ParamList,
+          };
+          setGacha.push(SetInfo);
+        }
+      }
+
       // 이미지 저장 경로 설정
       const saveDirectory = path.join(
         __dirname,
-        '../../../static/image/character/',
+        '../../../static/image/HonkaiStarRail/character/',
       );
 
       // 카드 이미지 다운로드
@@ -413,13 +500,16 @@ export class HonkaiStarRailCharacterCreate {
             addSet: statsAddVal,
             base: statsBaseVal,
           },
-          ranks: hakushCharacterInfo.Ranks,
+          ranks: setGacha,
           itemData: {
             card: setCard,
             relics: setRelicsList,
             accessories: setAccessories,
           },
-          relicsBase: hakushCharacterInfo.Relics,
+          propertyBase: {
+            main: setMainPropertyList,
+            sub: setSubPropertyList,
+          },
         };
 
         await CharacterInfo.create(setCharacterInfoBase);
@@ -429,14 +519,14 @@ export class HonkaiStarRailCharacterCreate {
           characterId: createCharacterBase.id,
           backgroundColor: '#ffffff',
           layout: 'card',
-          url: 'assets/image/character/' + cardImageVal,
+          url: 'assets/image/HonkaiStarRail/character/' + cardImageVal,
         });
 
         await CharacterImage.create({
           characterId: createCharacterBase.id,
           backgroundColor: '#ffffff',
           layout: 'art',
-          url: 'assets/image/character/' + artImageVal,
+          url: 'assets/image/HonkaiStarRail/character/' + artImageVal,
         });
 
         // 스킬 정보 처리
@@ -502,7 +592,7 @@ export class HonkaiStarRailCharacterCreate {
           // 스킬 이미지 처리
           const saveSkillDirectory = path.join(
             __dirname,
-            '../../../static/image/skill/',
+            '../../../static/image/HonkaiStarRail/skill/',
           );
           const skillImageVal = item?.iconPath;
           const skillImageUrl =
@@ -520,7 +610,7 @@ export class HonkaiStarRailCharacterCreate {
               skillId: createSkill.id,
               backgroundColor: '#ffffff',
               layout: '',
-              url: 'assets/image/skill/' + skillImageVal,
+              url: 'assets/image/HonkaiStarRail/skill/' + skillImageVal,
             });
           }
 

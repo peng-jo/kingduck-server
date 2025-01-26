@@ -29,7 +29,7 @@ export class GirlsFrontline2CharacterQuery extends GameQuery {
       ],
       attributes: ['isNew', 'isReleased', 'name', 'rarity', 'id', 'type'],
       order: [
-        ['rarity', 'DESC'],
+        ['rarity', 'ASC'],
         ['releaseDate', 'DESC'],
       ],
       where: { gameId },

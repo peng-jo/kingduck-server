@@ -50,7 +50,7 @@ export class HonkaiStarRailCharacterQuery extends GameQuery {
         {
           model: CharacterInfo,
           as: 'info',
-          attributes: ['stats', 'itemData', 'ranks'],
+          attributes: ['stats', 'itemData', 'ranks', 'propertyBase'],
         },
       ],
       where: { id },

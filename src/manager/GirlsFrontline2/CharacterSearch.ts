@@ -224,6 +224,10 @@ class GirlsFrontline2CharacterSearch {
                     ?.replace(strongElement.textContent || '', '')
                     .trim() || '';
               }
+              const imageElement = tr.querySelector(
+                'td.J0-mIdx0 img._66lDSM6b',
+              );
+              const imageSrc = imageElement?.src || '';
 
               // 레어도 정보 추출
               const tds = Array.from(
@@ -249,6 +253,7 @@ class GirlsFrontline2CharacterSearch {
                   kr: nameKr,
                   en: nameEn,
                 },
+                image: imageSrc,
                 rarity: rarityData,
                 affiliation: affiliation,
                 type: type,

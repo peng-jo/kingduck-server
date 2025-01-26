@@ -189,7 +189,10 @@ export class HonkaiStarRailItemCreate {
       }
 
       // 이미지 저장
-      const saveDirectory = path.join(__dirname, '../../../static/image/item/');
+      const saveDirectory = path.join(
+        __dirname,
+        '../../../static/image/HonkaiStarRail/item/',
+      );
 
       const cardImagePath = starrailstationInfo?.iconPath;
       const artImagePath = starrailstationInfo?.artPath;
@@ -234,10 +237,14 @@ export class HonkaiStarRailItemCreate {
           Refinements: hakushInfo.Refinements,
           image: {
             icon: {
-              src: starrailstationItem?.iconPath,
+              src:
+                'assets/image/HonkaiStarRail/item/' +
+                starrailstationItem?.iconPath,
             },
             art: {
-              src: starrailstationItem?.artPath,
+              src:
+                'assets/image/HonkaiStarRail/item/' +
+                starrailstationItem?.artPath,
             },
           },
         },
@@ -346,7 +353,9 @@ export class HonkaiStarRailItemCreate {
           Stats: [],
           info: {},
           image: {
-            src: starrailstationItem.iconPath,
+            src:
+              'assets/image/HonkaiStarRail/item/' +
+              starrailstationItem.iconPath,
           },
           baseKey: key,
         },
@@ -354,7 +363,10 @@ export class HonkaiStarRailItemCreate {
       };
 
       // 이미지 저장
-      const saveDirectory = path.join(__dirname, '../../../static/image/item/');
+      const saveDirectory = path.join(
+        __dirname,
+        '../../../static/image/HonkaiStarRail/item/',
+      );
       const imagePath = starrailstationItem?.iconPath;
 
       await ImageUtils.downloadImage(
@@ -463,7 +475,9 @@ export class HonkaiStarRailItemCreate {
           Stats: [],
           info: {},
           image: {
-            src: starrailstationItem.iconPath,
+            src:
+              'assets/image/HonkaiStarRail/item/' +
+              starrailstationItem.iconPath,
           },
           baseKey: key,
         },
@@ -471,7 +485,10 @@ export class HonkaiStarRailItemCreate {
       };
 
       // 이미지 저장
-      const saveDirectory = path.join(__dirname, '../../../static/image/item/');
+      const saveDirectory = path.join(
+        __dirname,
+        '../../../static/image/HonkaiStarRail/item/',
+      );
       const imagePath = starrailstationItem.iconPath;
 
       await ImageUtils.downloadImage(

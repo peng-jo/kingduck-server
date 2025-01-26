@@ -188,6 +188,8 @@ class GirlsFrontline2ItemCreate {
 
             // 이미지 파일명 생성
             const imageName = uuidv4().replace(/-/g, '');
+            const imageDir =
+              'assets/image/GirlsFrontline2Exilium/item/' + imageName + '.webp';
 
             // 아이템 데이터 구성
             const itemData = {
@@ -208,7 +210,7 @@ class GirlsFrontline2ItemCreate {
                 Refinements: itemSkill,
                 image: {
                   art: {
-                    src: imageName,
+                    src: imageDir,
                   },
                 },
               },
@@ -224,7 +226,7 @@ class GirlsFrontline2ItemCreate {
             const imageUrl = itemImageSrc;
             const directory = path.join(
               __dirname,
-              '../../../static/image/test',
+              '../../../static/image/GirlsFrontline2Exilium/item',
             );
             const filename = `${imageName}.webp`;
 

@@ -14,11 +14,16 @@ class NamuWiki {
 
       // 요청 차단 설정
       await page.setRequestInterception(true);
-      page.on('request', (request: puppeteer.HTTPRequest) => {
-        if (['image', 'stylesheet', 'font'].includes(request.resourceType())) {
-          request.abort();
-        } else {
-          request.continue();
+      page.on('request', (request: any) => {
+        switch (request.resourceType()) {
+          case 'stylesheet':
+          case 'font':
+          case 'image':
+            request.abort();
+            break;
+          default:
+            request.continue();
+            break;
         }
       });
 
@@ -31,7 +36,7 @@ class NamuWiki {
       await page.goto(url, { timeout: 100000 });
 
       // 페이지 대기
-      await new Promise((resolve) => setTimeout(resolve, 100000));
+      await new Promise((resolve) => setTimeout(resolve, 10000));
 
       return page;
     } catch (error) {

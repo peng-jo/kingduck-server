@@ -16,6 +16,7 @@ interface CharacterInfoAttributes {
   stats?: any;
   itemData?: any;
   ranks?: any;
+  propertyBase?: any;
   deletedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
@@ -31,6 +32,7 @@ export class CharacterInfo extends Model<
   stats!: any;
   itemData!: any;
   ranks!: any;
+  propertyBase!: any;
   deletedAt!: Date;
   createdAt!: Date;
   updatedAt!: Date;
@@ -59,6 +61,10 @@ CharacterInfo.init(
       allowNull: true,
     },
     itemData: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+    },
+    propertyBase: {
       type: DataTypes.JSONB,
       allowNull: true,
     },
