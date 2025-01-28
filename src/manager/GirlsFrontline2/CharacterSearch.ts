@@ -1,6 +1,5 @@
 import GirlsFrontline2CharacterQuery from './CharacterQuery';
 import GameQuery from '../AllGame/GameQuery';
-import HonkaiStarRailCharacterQuery from '../HonkaiStarRail/CharacterQuery';
 
 /**
  * 캐릭터 검색 관련 기능을 담당하는 클래스
@@ -203,7 +202,7 @@ class GirlsFrontline2CharacterSearch {
         };
 
         // 캐릭터 정보 추출
-        const characterElements = Array.from(
+        let characterElements = Array.from(
           document.querySelectorAll('._77e71e6e419071cb32f095b2bee8b744') || [],
         )
           .map((tr) => {
@@ -270,8 +269,81 @@ class GirlsFrontline2CharacterSearch {
           })
           .filter((item) => item !== null);
 
+        if (characterElements.length == 0) {
+          console.log('스킬 정보가 없습니다. 추가 방안 1');
+          characterElements = Array.from(
+            document.querySelectorAll('._10eba5bdae7643b4de684fd93f81f4f2') ||
+              [],
+          )
+            .map((tr) => {
+              try {
+                const nameElement = tr.querySelector(
+                  '._cb4126b23b3ae646ee4d5f64d79398f7',
+                );
+                if (!nameElement) return null;
+                let nameKr = '';
+                let nameEn = '';
+                if (nameElement) {
+                  const strongElement = nameElement.querySelector('strong');
+
+                  const spanElement = strongElement.querySelector('span');
+                  nameKr = spanElement?.textContent?.trim() || '';
+                  nameEn =
+                    nameElement.textContent
+                      ?.replace(strongElement.textContent || '', '')
+                      .trim() || '';
+                }
+                const imageElement = tr.querySelector(
+                  'td.J0-mIdx0 img._66lDSM6b',
+                );
+                const imageSrc = imageElement?.src || '';
+
+                // 레어도 정보 추출
+                const tds = Array.from(
+                  tr.querySelectorAll('td._573d4df1d40ab6bc664d0e5acb7696fc'),
+                );
+                const trElements = Array.from(tds).map((td) =>
+                  td.closest('tr'),
+                );
+
+                // tr 데이터 추출
+                const rarityData = CharacterInfoTableRows(trElements, '레어도');
+                const affiliation = CharacterInfoTableRows(trElements, '소속');
+                const type = CharacterInfoTableRows(trElements, '속성');
+                const corp = CharacterInfoTableRows(trElements, '직업');
+                const weapon = CharacterInfoTableRows(trElements, '무기');
+                const modal = CharacterInfoTableRows(trElements, '모델');
+                const nameList = CharacterInfoTableRows(
+                  trElements,
+                  '언어별 표기',
+                );
+                const voice = CharacterInfoTableRows(trElements, '성우');
+
+                return {
+                  name: {
+                    kr: nameKr,
+                    en: nameEn,
+                  },
+                  image: imageSrc,
+                  rarity: rarityData,
+                  affiliation: affiliation,
+                  type: type,
+                  corp: corp,
+                  weapon: weapon,
+                  modal: modal,
+                  nameList: nameList,
+                  voice: voice,
+                };
+              } catch (err) {
+                console.error('캐릭터 정보 추출 중 오류:', err);
+                return null;
+              }
+            })
+            .filter((item) => item !== null);
+        }
+
         // 스킬 정보 추출
-        const skillElements = Array.from(
+        let skillElements = Array.from(
           document.querySelectorAll('._38f185c22e4e5a213c9fed06728e5821') || [],
         )
           .map((element) => {
@@ -330,6 +402,78 @@ class GirlsFrontline2CharacterSearch {
           })
           .filter((item) => item !== null);
 
+        // 스킬을 못처리 할경우
+        if (skillElements.length == 0) {
+          skillElements = Array.from(
+            document.querySelectorAll('.GFclleaN._5EZzdmZE')[1]?.children || [],
+          ).map((element: Element) => {
+            try {
+              const skillRows = Array.from(element.querySelectorAll('tr'));
+              const skillData = skillRows.map((tr) => {
+                // 타이틀 부분 class 추출
+                const hasClass = tr.classList.contains(
+                  '_e4b3504a80ddb23176609fdef966c404',
+                );
+                if (hasClass) {
+                  return;
+                }
+                // 스킬 정보 추출
+                const tds = Array.from(tr.querySelectorAll('td'));
+                if (tds.length > 2) {
+                  const skill = tds.map((td) => {
+                    const tdText = td.textContent?.trim() || '';
+                    return tdText;
+                  });
+                  return skill;
+                }
+                return;
+              });
+              return {
+                description: skillData,
+              };
+            } catch (err) {
+              console.error('스킬 정보 추출 중 오류:', err);
+              return;
+            }
+          });
+          // 스킬 데이터 정리
+          const processedSkills = [];
+          let skillid = 0;
+          for (let i = 0; i < skillElements[0].description.length; i++) {
+            const skillElement = skillElements[0].description[i];
+            if (skillElement != null) {
+              let title = [];
+              let titleImage = '';
+              let description = '';
+              let skillDetailContent = {};
+              for (let ii = 0; ii < skillElement.length; ii++) {
+                if (ii === 0) {
+                  titleImage = skillElement[ii];
+                } else if (ii === 1) {
+                  description = skillElement[ii];
+                } else if (ii === 2) {
+                  skillDetailContent.title = '마인드 보강 & 사거리 ▼';
+                  skillDetailContent.content = skillElement[ii];
+                }
+              }
+              title.push({
+                image: titleImage,
+                value: {
+                  title: `스킬${skillid}`,
+                  description: '',
+                },
+              });
+              processedSkills.push({
+                title: title,
+                description: description,
+                detail: skillDetailContent,
+              });
+              skillid++;
+            }
+          }
+          skillElements = processedSkills;
+        }
+
         // 뉴럴 업그레이드 정보 추출
         const neuralElements = Array.from(
           document.querySelectorAll('._6803dcde6a09ae387f9994555e73dfd7') || [],
@@ -338,7 +482,12 @@ class GirlsFrontline2CharacterSearch {
             try {
               // 테이블 제목 추출 (colspan="3" 태그를 가진 td 엘리먼트 찾기)
               const titleElement = element.querySelector('td[colspan="3"]');
-              const title = titleElement?.textContent?.trim() || '';
+              let title = titleElement?.textContent?.trim() || '';
+
+              if (title == '') {
+                const titleElement = element.querySelector('td[colspan="4"]');
+                title = titleElement?.textContent?.trim() || '';
+              }
 
               // 테이블 제목에 따라 다른 처리
               if (title == '키 리스트') {

@@ -1,8 +1,6 @@
 // 필수 모듈 임포트
 import path from 'path';
 import fs from 'fs';
-import { Op } from 'sequelize';
-import sequelize from '../../models';
 import { v4 as uuidv4 } from 'uuid';
 import { JSDOM } from 'jsdom';
 
@@ -21,13 +19,6 @@ import { formatDateString } from '../../utils/dateUtils';
 import { fetchData } from '../../utils/apiUtils';
 import * as ImageUtils from '../../utils/imageUtils';
 import namuWiki from '../../utils/NamuWikiUtils';
-
-// 테스트 데이터 임포트
-import listtest from './setJosn/listtest.json';
-import characterInfoTest from './setJosn/test.json';
-import fs from 'fs';
-import { GirlsFrontline2CharacterInfoSearch } from '../../routes/test/testController';
-import { log } from 'console';
 
 /**
  * 캐릭터 스탯 증가값을 추출하는 함수
@@ -174,6 +165,27 @@ export class GirlsFrontline2CharacterCreate {
             console.log('링크 정보가 없습니다');
             continue;
           }
+
+          let linkName = link.title.replace(/\(소녀전선2: 망명\)/g, '');
+          // 캐릭터 중복 체크
+          const searchLinkCharacter: any = await Character.findOne({
+            where: {
+              'name.kr': linkName,
+            },
+            raw: true,
+          });
+          if (searchLinkCharacter?.id) {
+            console.log(
+              '이미 데이터 베이스에 있는것으로 확인 됩니다:',
+              linkName,
+            );
+            (TestLog.error as any[]).push({
+              error: '이미 데이터 베이스에 있는것으로 확인 됩니다.',
+              name: linkName,
+            });
+            continue;
+          }
+
           console.log('나무위키 캐릭터 페이지 분석중 : ', link.title);
           const startTime = Date.now();
           // 캐릭터 상세 페이지 로드
@@ -251,6 +263,10 @@ export class GirlsFrontline2CharacterCreate {
           let characterImage = characterInfo.image;
 
           console.log('name:', ChkName + '/' + ChkEnName);
+
+          if (ChkEnName === 'Klukai') {
+            ChkEnName = 'Klukay';
+          }
 
           // prydwen 데이터 매칭
           const prydwenItem: any = prydwenCharacter.find(

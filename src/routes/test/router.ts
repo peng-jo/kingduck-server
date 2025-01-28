@@ -11,6 +11,6 @@ const router = express.Router();
 // 요청 method 별로 라우팅itemSet
 router.get('/code', TestController.getCodeTest);
 router.get('/youtube', TestController.get_youtubeTest);
-router.get('/namuwiki', TestController.getNamuWikiContent);
+router.get('/characterList', TestController.getcharacterListContent);
 
 export default router;
