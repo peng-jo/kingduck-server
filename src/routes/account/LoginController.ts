@@ -33,6 +33,8 @@ export class LoginController {
       password,
       user.password,
       user.email,
+      user.name,
+      user.uuid,
       isAdmin,
     );
 

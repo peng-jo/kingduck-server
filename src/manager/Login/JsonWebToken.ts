@@ -5,6 +5,8 @@ const secretKey = config.JWT_SECRET_KEY;
 interface TokenPayload {
   userId: string;
   isAdmin: boolean;
+  userName: string;
+  userUUID: string;
 }
 
 const generateToken = (payload: TokenPayload): string => {
@@ -22,7 +24,11 @@ const refreshToken = (token: string): string | null => {
     const payload: TokenPayload = {
       userId: decoded.userId,
       isAdmin: decoded.isAdmin,
+      userName: decoded.userName,
+      userUUID: decoded.userUUID,
     };
+
+    console.log(payload);
 
     // 새로운 토큰 생성
     const newToken = generateToken(payload);

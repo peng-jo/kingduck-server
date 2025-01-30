@@ -10,6 +10,8 @@ interface LoginResult {
   token?: string;
   refreshToken?: string;
   message?: string;
+  userName?: string;
+  userUUID?: string;
 }
 
 export class Login {
@@ -24,6 +26,8 @@ export class Login {
     inputPassword: string,
     storedPassword: string,
     userId: string,
+    userName: string,
+    userUUID: string,
     isAdmin: boolean,
   ): Promise<LoginResult> {
     try {
@@ -41,12 +45,16 @@ export class Login {
       const token = generateToken({
         userId: userId,
         isAdmin: isAdmin,
+        userName: userName,
+        userUUID: userUUID,
       });
 
       return {
         success: true,
         token: token,
         refreshToken: refreshToken(token) || undefined,
+        userName: userName,
+        userUUID: userUUID,
       };
     } catch (error) {
       if (error instanceof BadRequest) {
