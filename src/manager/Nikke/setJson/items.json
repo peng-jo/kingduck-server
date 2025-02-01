@@ -240,16 +240,6 @@
     "__v": 0
   },
   {
-    "_id": "6592806ae67a2e4109278efc",
-    "id": "7010003",
-    "name": "Ultra-Double Boost Module",
-    "description": "A device that improves an equipment's performance by updating its OS. It produces a more enhanced performance than Ultra Boost Module.",
-    "itemType": "Equip_Material",
-    "img": "icn_material_equipment_exp_ssr",
-    "url": "ultra-double-boost-module",
-    "__v": 0
-  },
-  {
     "_id": "6592806ae67a2e4109278efd",
     "id": "7020001",
     "name": "Assault Battery",
