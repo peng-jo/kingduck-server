@@ -1,6 +1,7 @@
 // 필수 모듈 임포트
 import HonkaiStarRailItemCreate from '../../manager/HonkaiStarRail/ItemCreate';
 import GirlsFrontline2ItemCreate from '../../manager/GirlsFrontline2/ItemCreate';
+import NikkeItemCreate from '../../manager/Nikke/ItemCreate';
 
 /**
  * 아이템 데이터 생성 및 관리를 위한 컨트롤러 클래스
@@ -67,6 +68,24 @@ export class ItemCreateController {
       });
     } catch (error) {
       // 에러 발생 시 에러 응답
+      return res.status(500).json({
+        resultCode: 500,
+        resultMsg: '서버 오류가 발생했습니다.',
+      });
+    }
+  }
+
+  async NikkeItemSetAll(req: any, res: any): Promise<void> {
+    try {
+      const result = await NikkeItemCreate.itemSetAll();
+
+      // 성공 응답 반환
+      return res.status(200).json({
+        resultCode: 200,
+        item: result, // 오타 수정: itme -> item
+        resultMsg: '생성 완료',
+      });
+    } catch (error) {
       return res.status(500).json({
         resultCode: 500,
         resultMsg: '서버 오류가 발생했습니다.',

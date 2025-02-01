@@ -9,12 +9,13 @@ const router = express.Router();
 
 // 요청 method 별로 라우팅itemSet
 router.get(
-  '/HonkaiStarRail/all',
+  '/set/HonkaiStarRail/all',
   ItemCreateController.HonkaiStarRailItemSetAll,
 );
 router.get(
-  '/GirlsFrontline2/all',
+  '/set/GirlsFrontline2/all',
   ItemCreateController.GirlsFrontline2ItemSetAll,
 );
+router.get('/set/Nikke/all', ItemCreateController.NikkeItemSetAll);
 
 export default router;
