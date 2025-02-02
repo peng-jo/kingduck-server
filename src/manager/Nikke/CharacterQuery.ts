@@ -8,10 +8,10 @@ import Skill, { Skill } from '../../models/skill/SkillDef.Vo';
 import SkillImage, { SkillImage } from '../../models/skill/SkillImage.Vo';
 import { GameQuery } from '../AllGame/GameQuery';
 /**
- * 붕괴: 스타레일 캐릭터 조회 관리 클래스
+ * 승리의 여신: 니케 캐릭터 조회 관리 클래스
  * GameQuery 클래스를 상속받아 공통 기능을 재사용
  */
-export class GirlsFrontline2CharacterQuery extends GameQuery {
+export class NikkeCharacterQuery extends GameQuery {
   /**
    * 캐릭터 목록 조회
    * @param gameId - 게임 ID
@@ -29,7 +29,7 @@ export class GirlsFrontline2CharacterQuery extends GameQuery {
       ],
       attributes: ['isNew', 'isReleased', 'name', 'rarity', 'id', 'type'],
       order: [
-        ['rarity', 'DESC'],
+        ['rarity', 'ASC'],
         ['releaseDate', 'DESC'],
       ],
       where: { gameId },
@@ -66,12 +66,56 @@ export class GirlsFrontline2CharacterQuery extends GameQuery {
    * @returns [속성정보, 경로정보, 스킬정보, 이미지정보] 배열
    */
   async getCharacterAdditionalInfo(
+    burstId: string,
+    classId: string,
+    weaponId: string,
     elementId: string,
-    weaponType: string,
-    corpType: string,
+    manufacturerType: string,
     characterId: string,
   ) {
     return await Promise.all([
+      // 경로 정보
+      TypeDef.findOne({
+        include: [
+          {
+            model: TypeImage,
+            as: 'image',
+            attributes: ['url', 'backgroundColor'],
+          },
+        ],
+        attributes: ['name', 'id'],
+        where: { id: burstId },
+        raw: true,
+        nest: true,
+      }),
+      TypeDef.findOne({
+        include: [
+          {
+            model: TypeImage,
+            as: 'image',
+            attributes: ['url', 'backgroundColor'],
+          },
+        ],
+        attributes: ['name', 'id'],
+        where: { id: classId },
+        raw: true,
+        nest: true,
+      }),
+
+      // 경로 정보
+      TypeDef.findOne({
+        include: [
+          {
+            model: TypeImage,
+            as: 'image',
+            attributes: ['url', 'backgroundColor'],
+          },
+        ],
+        attributes: ['name', 'id'],
+        where: { id: weaponId },
+        raw: true,
+        nest: true,
+      }),
       // 속성 정보
       TypeDef.findOne({
         include: [
@@ -97,22 +141,7 @@ export class GirlsFrontline2CharacterQuery extends GameQuery {
           },
         ],
         attributes: ['name', 'id'],
-        where: { id: weaponType },
-        raw: true,
-        nest: true,
-      }),
-
-      // 경로 정보
-      TypeDef.findOne({
-        include: [
-          {
-            model: TypeImage,
-            as: 'image',
-            attributes: ['url', 'backgroundColor'],
-          },
-        ],
-        attributes: ['name', 'id'],
-        where: { id: corpType },
+        where: { id: manufacturerType },
         raw: true,
         nest: true,
       }),
@@ -143,7 +172,7 @@ export class GirlsFrontline2CharacterQuery extends GameQuery {
       // 캐릭터 이미지 (카드 제외)
       CharacterImage.findAll({
         where: {
-          characterId,
+          characterId: characterId,
           layout: { [Op.notLike]: '%card' },
         },
         order: [['layout', 'DESC']],
@@ -161,4 +190,4 @@ export class GirlsFrontline2CharacterQuery extends GameQuery {
     return await Promise.all([this.itemForSearch(itemData.weapon)]);
   }
 }
-export default new GirlsFrontline2CharacterQuery();
+export default new NikkeCharacterQuery();

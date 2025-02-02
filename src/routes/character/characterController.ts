@@ -2,6 +2,7 @@ import express from 'express';
 import GameQuery from '../../manager/AllGame/GameQuery';
 import HonkaiStarRailCharacterSearch from '../../manager/HonkaiStarRail/CharacterSearch';
 import GirlsFrontline2CharacterSearch from '../../manager/GirlsFrontline2/CharacterSearch';
+import NikkeCharacterSearch from '../../manager/Nikke/CharacterSearch';
 
 export class CharacterController {
   /**
@@ -34,6 +35,8 @@ export class CharacterController {
     } else if (gameData.id == 2) {
       result =
         await GirlsFrontline2CharacterSearch.searchCharacterList(gameData);
+    } else if (gameData.id == 3) {
+      result = await NikkeCharacterSearch.searchCharacterList(gameData);
     }
 
     return res.status(200).json(result);
@@ -73,6 +76,8 @@ export class CharacterController {
         gameData,
         id,
       );
+    } else if (gameData.id == 3) {
+      result = await NikkeCharacterSearch.searchCharacterDetail(gameData, id);
     }
     console.log(result);
     return res.status(200).json(result);
