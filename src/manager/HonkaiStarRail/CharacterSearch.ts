@@ -10,14 +10,53 @@ class HonkaiStarRailCharacterSearch {
    * @param gameData 게임 정보 객체
    * @returns 캐릭터 목록 검색 결과
    */
-  async searchCharacterList(gameData: any) {
+  async searchCharacterList(
+    gameData: any,
+    typeConditions: any[],
+    raityConditions: string,
+  ) {
+    let rarityOptions;
+    if (raityConditions) {
+      rarityOptions = { rarity: raityConditions };
+    }
+    // 받아온 데이터 처리
+    const setTypeOptions = (
+      types: Array<{ key: string; value: string }>,
+    ): Record<string, string> => {
+      const typeOptions: Record<string, string> = {};
+
+      types.forEach((type) => {
+        if (type.key === 'baseTypeChar') {
+          typeOptions['type.path'] = type.value;
+        }
+        if (type.key === 'damageType') {
+          typeOptions['type.element'] = type.value;
+        }
+      });
+
+      return typeOptions;
+    };
+
+    const typeOptions = setTypeOptions(typeConditions);
+
     // 게임의 타입(속성, 경로) 정보 조회
     const typeList = await GameQuery.getTypeList(gameData.id);
 
     // 캐릭터 기본 정보 목록 조회
-    const characterList = await HonkaiStarRailCharacterQuery.getCharacterList(
-      gameData.id,
-    );
+    let characterList;
+    if (typeOptions && Object.keys(typeOptions).length > 0) {
+      characterList =
+        await HonkaiStarRailCharacterQuery.getCharacterListWithConditions(
+          gameData.id,
+          typeOptions,
+          rarityOptions,
+        );
+    } else {
+      characterList = await HonkaiStarRailCharacterQuery.getCharacterList(
+        gameData.id,
+      );
+      11;
+    }
 
     // 각 캐릭터에 속성과 경로 정보를 매핑
     const mappedCharacters = characterList.map((character: any) => ({

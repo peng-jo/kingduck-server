@@ -14,6 +14,26 @@ export class CharacterController {
    */
   async getCharacterList(req: any, res: any): Promise<void> {
     const { slug } = req.params;
+    const { type, raity } = req.query;
+
+    console.log(type);
+
+    // 타입 파라미터 파싱
+    let typeConditions: any[] = [];
+    if (type) {
+      const typeGroups = type.split('*');
+      typeGroups.forEach((group: string) => {
+        const [key, value] = group.split('+');
+        if (key && value) {
+          typeConditions.push({
+            key: decodeURIComponent(key),
+            value: decodeURIComponent(value),
+          });
+        }
+      });
+    }
+
+    console.log('타입 조건:', typeConditions);
 
     // 1. 게임 정보 조회
     const gameData = await GameQuery.getGameInfo(slug);
@@ -30,8 +50,11 @@ export class CharacterController {
     // 2. 캐릭터 목록 조회
     if (gameData.id == 1) {
       // 2. 캐릭터 목록 조회
-      result =
-        await HonkaiStarRailCharacterSearch.searchCharacterList(gameData);
+      result = await HonkaiStarRailCharacterSearch.searchCharacterList(
+        gameData,
+        typeConditions,
+        raity,
+      );
     } else if (gameData.id == 2) {
       result =
         await GirlsFrontline2CharacterSearch.searchCharacterList(gameData);
